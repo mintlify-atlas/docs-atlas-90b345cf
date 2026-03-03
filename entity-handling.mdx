@@ -1,0 +1,249 @@
+---
+title: Entity Handling
+description: Entity decompilation features and entity types supported
+icon: sitemap
+---
+
+BSPSource reconstructs entities from BSP data, including both point entities (lights, props, etc.) and brush entities (func_detail, func_door, etc.). The decompiler handles various entity types with special processing for Source Engine-specific features.
+
+## Entity Types
+
+### Point Entities
+
+Point entities are reconstructed with their properties, positions, and I/O connections.
+
+**Supported entities include:**
+- Player spawns (`info_player_*`)
+- Lights (`light`, `light_spot`, `light_environment`)
+- Props (`prop_static`, `prop_dynamic`)
+- Cubemaps (`env_cubemap`)
+- Overlays (`info_overlay`)
+- NPCs and triggers
+- Logic entities
+
+```java
+config.writePointEntities = true; // Enable point entity decompilation
+```
+
+### Brush Entities
+
+Brush entities are reconstructed with their geometry and entity-specific properties.
+
+**Supported entities include:**
+- `func_detail` - Detail brushes
+- `func_brush` - Generic brush entities
+- `func_door`, `func_door_rotating` - Doors
+- `func_movelinear`, `func_rotating` - Moving entities
+- `func_breakable` - Breakable brushes
+- `func_button` - Brush-based buttons
+- `func_ladder` - Ladders
+- `func_areaportal` - Areaportals
+- `func_occluder` - Occluders
+
+```java
+config.writeBrushEntities = true; // Enable brush entity decompilation
+```
+
+## Special Entity Handling
+
+### Static Props (`prop_static`)
+
+Static props are fully reconstructed with all version-specific properties:
+
+- Model path and skin
+- Position, angles, and scale
+- Fade distances (`fademindist`, `fademaxdist`)
+- Lighting properties (`disablevertexlighting`, `disableselfshadowing`)
+- DX levels and CPU/GPU levels
+- Render color and alpha
+- Lighting origins (`info_lighting` entities)
+
+```java
+config.writeStaticProps = true;
+```
+
+### Overlays (`info_overlay`)
+
+Overlays are reconstructed with:
+- Material/texture assignment
+- UV coordinates and basis vectors
+- Linked brush sides
+- Fade distances and system levels
+- Render order
+
+```java
+config.writeOverlays = true;
+config.maxOverlaySides = 64; // Maximum brush sides per overlay
+```
+
+### Cubemaps (`env_cubemap`)
+
+Cubemaps are reconstructed with position and size, plus linked brush sides:
+
+```java
+config.writeCubemaps = true;
+config.maxCubemapSides = 8; // Maximum brush sides per cubemap
+```
+
+### Detail Brushes (`func_detail`)
+
+Detail brushes can be automatically merged based on proximity:
+
+```java
+config.writeDetails = true;
+config.detailMerge = true; // Merge nearby detail brushes
+config.detailMergeThresh = 1; // Merge threshold in units
+```
+
+### Ladders (`func_ladder`)
+
+Ladders are reconstructed from brush data. BSPSource automatically converts `func_simpleladder` (L4D engine) back to `func_ladder`:
+
+```java
+config.writeLadders = true;
+```
+
+### Areaportals (`func_areaportal`)
+
+Areaportals are reconstructed with automatic geometry rebuilding:
+
+```java
+config.writeAreaportals = true;
+config.apForceManualMapping = false; // Use automatic mapping
+```
+
+<Note>
+  Areaportals without valid geometry or portal numbers are automatically skipped with warnings.
+</Note>
+
+### Occluders (`func_occluder`)
+
+Occluders are reconstructed similarly to areaportals:
+
+```java
+config.writeOccluders = true;
+```
+
+### Vis Clusters (`func_viscluster`)
+
+Vis clusters are reconstructed from leaf cluster data:
+
+```java
+config.writeVisClusters = true;
+```
+
+## Entity Processing
+
+### Entity I/O Connections
+
+All entity I/O connections are preserved:
+
+```vmf
+connections
+{
+    "OnTrigger" "door_1,Open,,0,-1"
+    "OnTrigger" "light_1,TurnOff,,0.5,-1"
+}
+```
+
+### Entity Rotation Fixing
+
+Brush entities can have rotation "baked in" for better Hammer display:
+
+```java
+config.fixEntityRot = true; // Apply rotation to brushes directly
+```
+
+<Warning>
+  When `fixEntityRot` is enabled, the `angles` property is applied to the brush geometry and removed from the entity. This makes rotation visible in Hammer but may differ from the original VMF.
+</Warning>
+
+### Light Entity Processing
+
+Light entities have automatic style fixing:
+
+- Custom styles (≥32) are converted back to preset styles when possible
+- `defaultstyle` property is used to restore original presets
+- Invalid style formats trigger warnings
+
+### Special Entity Handling
+
+**Worldspawn:**
+- `world_mins` and `world_maxs` are removed (Hammer-unknown)
+- `mapversion` is rebuilt from BSP revision
+
+**env_sprite:**
+- `scale` property removed when model starts with "model" (prevents Hammer crashes)
+
+**info_ladder:**
+- Skipped during entity writing (engine-only entities)
+
+**info_overlay_accessor:**
+- Processed to restore overlay targetnames
+- Not written as separate entities
+
+## Entity Filtering
+
+You can selectively enable/disable entity types:
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+
+// Disable all entities
+config.setWriteEntities(false);
+
+// Or selectively enable
+config.writePointEntities = true;
+config.writeBrushEntities = false;
+config.writeStaticProps = true;
+config.writeOverlays = false;
+config.writeCubemaps = true;
+config.writeDetails = true;
+config.writeLadders = true;
+config.writeAreaportals = false;
+config.writeOccluders = false;
+```
+
+## Entity Protection Handling
+
+Entities with protection flags are marked in visgroups:
+
+- Entities with `no_decomp` property → "VMEX flagged entities" visgroup
+- Protected brushes → "VMEX protector brushes" visgroup
+
+See [Protection Detection](/protection-detection) for more details.
+
+## Game-Specific Features
+
+### No More Room in Hell (NMRiH)
+
+NMO objective data is integrated:
+- Objective entities are grouped in visgroups
+- Extraction entities reuse NMO entity IDs
+- Anti-objective entities are properly categorized
+
+### Vampire: The Masquerade - Bloodlines
+
+Escaped quotes in entity properties are automatically cleaned:
+
+```java
+// \" → removed
+```
+
+### Left 4 Dead Engine
+
+`func_simpleladder` entities are automatically converted to `func_ladder`.
+
+## Camera Generation
+
+Cameras are automatically generated from player spawn entities:
+
+```java
+config.writeCameras = true;
+```
+
+Cameras are positioned 64 units above and behind each player spawn, looking in the spawn direction.
+
+<Note>
+  All entity hammerIDs are preserved when possible and added to the UID blacklist to prevent conflicts.
+</Note>

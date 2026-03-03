@@ -1,0 +1,332 @@
+---
+title: FaceSource
+description: Module for writing brushes from BSP face lumps
+---
+
+## Overview
+
+The `FaceSource` class is a decompiling module that writes brushes from the `LUMP_FACES` lump in BSP files. Unlike `BrushSource` which reconstructs brushes from brush/brushside data, this module creates thin face brushes from face geometry, including support for displacements, areaportals, and occluders.
+
+This module is based on several face building methods from Vmex.
+
+**Package:** `info.ata4.bspsrc.decompiler.modules.geom`
+
+## Constructor
+
+```java
+public FaceSource(
+    BspFileReader reader,
+    VmfWriter writer,
+    BspSourceConfig config,
+    TextureSource texsrc,
+    VmfMeta vmfmeta,
+    WindingFactory windingFactory,
+    OccluderMapper.ReallocationData occReallocationData
+)
+```
+
+<ParamField path="reader" type="BspFileReader" required>
+  BSP file reader for accessing BSP data
+</ParamField>
+
+<ParamField path="writer" type="VmfWriter" required>
+  VMF writer for outputting face brushes
+</ParamField>
+
+<ParamField path="config" type="BspSourceConfig" required>
+  Configuration settings for decompilation
+</ParamField>
+
+<ParamField path="texsrc" type="TextureSource" required>
+  Texture source module for material handling
+</ParamField>
+
+<ParamField path="vmfmeta" type="VmfMeta" required>
+  VMF metadata handler for UIDs and visgroups
+</ParamField>
+
+<ParamField path="windingFactory" type="WindingFactory" required>
+  Factory for creating winding geometry from faces
+</ParamField>
+
+<ParamField path="occReallocationData" type="OccluderMapper.ReallocationData" required>
+  Occluder reallocation data
+</ParamField>
+
+## Public Methods
+
+### writeFaces
+
+```java
+public void writeFaces()
+```
+
+Writes all split faces from Model 0 (world brushes) to the VMF file. Each face is written as a thin brush with back sides.
+
+### writeOrigFaces
+
+```java
+public void writeOrigFaces()
+```
+
+Writes original (pre-split) faces where available. When an original face doesn't exist, it leaves gaps in the brush structure.
+
+### writeOrigFacesPlus
+
+```java
+public void writeOrigFacesPlus()
+```
+
+Writes original faces where possible, but falls back to split faces for undersized original faces. This is a hybrid approach that provides better geometry reconstruction.
+
+**Behavior:**
+- Creates face mapping between original and split faces
+- Detects undersized original faces (where split face area > original face area)
+- Writes split faces for undersized originals to avoid gaps
+
+### writeDispFaces
+
+```java
+public void writeDispFaces()
+```
+
+Writes only faces that have displacement data (`dispInfo != -1`). Used for extracting displacement geometry.
+
+### writeFace
+
+```java
+public void writeFace(int iface, boolean orig)
+public void writeFace(int iface, boolean orig, Vector3d origin, Vector3d angles)
+```
+
+Writes a single face as a brush with prismatic or pyramidal back sides.
+
+<ParamField path="iface" type="int" required>
+  Face index (in faces or origFaces lump, depending on `orig` parameter)
+</ParamField>
+
+<ParamField path="orig" type="boolean" required>
+  If `true`, use original faces lump; if `false`, use split faces lump
+</ParamField>
+
+<ParamField path="origin" type="Vector3d">
+  Origin offset to apply to face geometry
+</ParamField>
+
+<ParamField path="angles" type="Vector3d">
+  Rotation angles to apply to face geometry
+</ParamField>
+
+**Behavior:**
+- Skips faces with less than 2 edges
+- Creates front side from face winding
+- Creates back sides (prismatic for displacements, pyramidal otherwise)
+- Writes displacement data if present and `config.writeDisp` is enabled
+
+### writeModel
+
+```java
+public void writeModel(int imodel)
+public void writeModel(int imodel, Vector3d origin, Vector3d angles)
+```
+
+Writes all faces associated with a BSP model.
+
+<ParamField path="imodel" type="int" required>
+  Model index in the BSP model lump
+</ParamField>
+
+<ParamField path="origin" type="Vector3d">
+  Origin offset for model faces
+</ParamField>
+
+<ParamField path="angles" type="Vector3d">
+  Rotation angles for model faces
+</ParamField>
+
+### writeAreaportal
+
+```java
+public void writeAreaportal(int portalKey)
+public void writeAreaportal(DAreaportal ap)
+```
+
+Writes an areaportal brush from areaportal data.
+
+<ParamField path="portalKey" type="int">
+  Portal key identifying the areaportal
+</ParamField>
+
+<ParamField path="ap" type="DAreaportal">
+  Areaportal data structure
+</ParamField>
+
+**Behavior:**
+- Creates winding from areaportal vertices
+- Writes as extruded polygon with `tools/toolsareaportal` texture
+
+### writeOccluder
+
+```java
+public void writeOccluder(int occluderKey)
+public void writeOccluder(DOccluderData od)
+```
+
+Writes occluder brushes from occluder data.
+
+<ParamField path="occluderKey" type="int">
+  Occluder key/index
+</ParamField>
+
+<ParamField path="od" type="DOccluderData">
+  Occluder data structure
+</ParamField>
+
+**Behavior:**
+- Writes all polygons associated with the occluder
+- Uses `tools/toolsoccluder` for front face, `tools/toolsnodraw` for back faces
+- Extrudes by 1 unit
+
+### writePolygon
+
+```java
+public void writePolygon(Winding wind, String material, boolean prism)
+public void writePolygon(Winding wind, String material, boolean prism, double depth)
+public void writePolygon(Winding wind, String frontMaterial, String backMaterial, boolean prism)
+public void writePolygon(Winding wind, String frontMaterial, String backMaterial, boolean prism, double depth)
+```
+
+Writes a brush from raw polygon data with specified materials.
+
+<ParamField path="wind" type="Winding" required>
+  Winding (polygon vertices) to create brush from
+</ParamField>
+
+<ParamField path="material" type="String">
+  Texture string for all brush sides
+</ParamField>
+
+<ParamField path="frontMaterial" type="String">
+  Texture string for front brush side
+</ParamField>
+
+<ParamField path="backMaterial" type="String">
+  Texture string for back brush sides
+</ParamField>
+
+<ParamField path="prism" type="boolean" required>
+  If `true`, use prismatic back sides; if `false`, use pyramidal back sides
+</ParamField>
+
+<ParamField path="depth" type="double">
+  Extrusion depth for back sides (defaults to `config.backfaceDepth`)
+</ParamField>
+
+### writeDisplacement
+
+```java
+public void writeDisplacement(int idispinfo)
+```
+
+Writes displacement data for a brush side.
+
+<ParamField path="idispinfo" type="int" required>
+  Displacement info index
+</ParamField>
+
+**Behavior:**
+- Writes displacement vertex normals, distances, and alphas
+- Writes triangle tags and allowed vertices
+- Writes multiblend data if present in BSP
+- Maps displacement vertices to VMF row format
+
+## Configuration Options
+
+This module respects the following configuration options from `BspSourceConfig`:
+
+- **writeDisp** - Enable writing displacement data
+- **faceTexture** - Override texture string for front faces
+- **backfaceTexture** - Override texture string for back faces  
+- **backfaceDepth** - Depth to extrude back sides (default varies)
+- **debug** - Write debugging metadata to VMF output
+
+## Usage Example
+
+```java
+// Initialize dependencies
+BspFileReader reader = new BspFileReader(bspFile);
+VmfWriter writer = new VmfWriter(outputFile);
+BspSourceConfig config = new BspSourceConfig();
+config.writeDisp = true;
+config.backfaceDepth = 2.0;
+
+// Create FaceSource module
+FaceSource faceSource = new FaceSource(
+    reader, writer, config, texsrc, vmfmeta,
+    windingFactory, occReallocationData
+);
+
+// Write original faces with fallback to split faces
+faceSource.writeOrigFacesPlus();
+
+// Write a specific model's faces
+faceSource.writeModel(1);
+
+// Write an areaportal
+faceSource.writeAreaportal(5);
+
+// Write custom polygon brush
+Winding customWinding = new Winding(Arrays.asList(
+    new Vector3d(0, 0, 0),
+    new Vector3d(128, 0, 0),
+    new Vector3d(128, 128, 0),
+    new Vector3d(0, 128, 0)
+));
+faceSource.writePolygon(customWinding, "tools/toolsskip", true, 16);
+```
+
+## Implementation Details
+
+### Face Types
+
+The module handles three types of faces:
+
+1. **Split Faces** - Faces after BSP compilation splits them
+2. **Original Faces** - Pre-split faces stored in `LUMP_ORIGINALFACES`
+3. **Displacement Faces** - Faces with displacement geometry data
+
+### Back Side Generation
+
+Faces are written as thin brushes with two back side generation strategies:
+
+**Pyramidal:** Creates a pyramid with apex at face center displaced by depth
+- Used for regular faces
+- Results in fewer brush sides
+- Can create non-planar geometry
+
+**Prismatic:** Extrudes face by depth in normal direction
+- Used for displacement faces
+- Maintains face shape
+- Creates surrounding side faces
+
+### Face Mapping
+
+The `createFaceMapping()` method builds relationships between original and split faces:
+- Maps each split face to its original face
+- Calculates original face areas
+- Detects undersized original faces (split area > original area + epsilon)
+
+### Displacement Data
+
+Displacement data includes:
+- Vertex normals and offsets
+- Alpha values for blending
+- Triangle subdivision tags
+- Allowed vertices for editing
+- Multiblend channels (if present)
+
+## Related Modules
+
+- [BrushSource](/api/modules/brush-source) - Alternative brush writing using brush/brushside lumps
+- [EntitySource](/api/modules/entity-source) - Entity decompilation that uses FaceSource
+- TextureSource - Texture handling for faces

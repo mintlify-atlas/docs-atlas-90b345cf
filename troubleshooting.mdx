@@ -1,0 +1,232 @@
+---
+title: Troubleshooting
+description: Common issues and solutions when using BSPSource
+---
+
+## Missing Textures (Gray Textures)
+
+If you see gray textures or checker patterns in your decompiled map, this is usually because materials are embedded in the BSP file rather than existing in the base game.
+
+### Cause
+
+This commonly occurs with:
+- Workshop maps
+- Maps using CS:GO's autocombine prop feature
+- Custom maps with embedded content
+
+### Solution
+
+1. **Extract embedded files** during decompilation:
+   ```bash
+   bspsrc map.bsp --unpack_embedded
+   ```
+
+2. **Move extracted files** to your game directory:
+   - Copy extracted `materials/` folder to `[game]/materials/`
+   - Copy extracted `models/` folder to `[game]/models/`
+
+3. **Smart extraction** (default behavior):
+   ```bash
+   bspsrc map.bsp --unpack_embedded
+   ```
+   This automatically skips VBSP-generated files that are only needed by the engine.
+
+4. **Full extraction** (extract everything):
+   ```bash
+   bspsrc map.bsp --unpack_embedded --no_smart_unpack
+   ```
+
+## Missing Models (Error Models)
+
+Similar to textures, missing models appear as red ERROR placeholders.
+
+### Solution
+
+Follow the same process as missing textures:
+```bash
+bspsrc map.bsp --unpack_embedded
+```
+
+Then move the extracted `models/` folder to your game's models directory.
+
+## Decompilation Fails or Crashes
+
+### BSP File Not Found
+
+**Error:** `Could not find bsp file`
+
+**Solution:** Verify the file path is correct and the file exists:
+```bash
+# Use absolute paths if needed
+bspsrc /full/path/to/map.bsp
+```
+
+### Wrong Game Detection
+
+**Issue:** BSPSource detects the wrong game for your map.
+
+**Solution:** Override game detection using the `--appid` flag:
+```bash
+bspsrc map.bsp --appid 730  # Force CS:GO (730)
+```
+
+To list all available App IDs:
+```bash
+bspsrc --appids
+```
+
+### Missing .nmo File (No More Room in Hell)
+
+**Warning:** `Missing .nmo file! If the bsp is for the objective game mode, its objectives will be missing.`
+
+**Solution:** Ensure the `.nmo` file is in the same directory as the BSP file. This file contains objective data for No More Room in Hell maps.
+
+## Decompiled Map Issues
+
+### Brush Errors in Hammer
+
+**Issue:** Brushes appear incorrect or cause errors when loading in Hammer.
+
+**Solution:** Try different brush modes:
+
+```bash
+# Default: brushes and planes (recommended)
+bspsrc map.bsp --brushmode BRUSHPLANES
+
+# Original faces only
+bspsrc map.bsp --brushmode ORIGFACE
+
+# Original + split faces
+bspsrc map.bsp --brushmode ORIGFACE_PLUS
+
+# Split faces only
+bspsrc map.bsp --brushmode SPLITFACE
+```
+
+### Thin Brush Issues
+
+**Issue:** Flat faces create brushes that are too thin.
+
+**Solution:** Adjust brush thickness (default is 1 unit):
+```bash
+bspsrc map.bsp --thickness 2.0
+```
+
+### Instance Entity Rotation Issues
+
+**Issue:** Instance entity brushes appear rotated incorrectly in Hammer.
+
+**Solution:** Enable rotation fix (enabled by default):
+```bash
+bspsrc map.bsp  # Rotation fix is enabled by default
+```
+
+To disable if causing issues:
+```bash
+bspsrc map.bsp --no_rotfix
+```
+
+## Performance Issues
+
+### Slow Decompilation
+
+**Issue:** Decompilation takes too long.
+
+**Solution:** Skip protection checking if decompiling unprotected maps:
+```bash
+bspsrc map.bsp --no_prot
+```
+
+**Solution:** Disable lump file loading if not needed:
+```bash
+bspsrc map.bsp --no_lumpfiles
+```
+
+### Large Output Files
+
+**Issue:** VMF file is too large or has too many entities.
+
+**Solution:** Selectively disable entity types:
+
+```bash
+# Disable prop_static entities
+bspsrc map.bsp --no_sprp
+
+# Disable overlays
+bspsrc map.bsp --no_overlays
+
+# Disable all point entities
+bspsrc map.bsp --no_point_ents
+
+# Disable all brush entities
+bspsrc map.bsp --no_brush_ents
+```
+
+## Command Line Issues
+
+### Recursive Decompilation Not Working
+
+**Issue:** Only decompiling one file instead of all BSPs in a directory.
+
+**Solution:** Use the `--recursive` flag:
+```bash
+bspsrc ./maps/ --recursive --output ./decompiled/
+```
+
+### Output Path Issues
+
+**Issue:** VMF files going to wrong location.
+
+**Solution:** Explicitly specify output path:
+```bash
+# Single file - output is the VMF file path
+bspsrc map.bsp --output ./output/map.vmf
+
+# Multiple files - output is the directory
+bspsrc map1.bsp map2.bsp --output ./output/
+```
+
+## VMF Format Issues
+
+### Hammer Version Compatibility
+
+**Issue:** VMF doesn't open correctly in Hammer.
+
+**Solution:** Force a specific VMF format:
+
+```bash
+# Auto-detect (default)
+bspsrc map.bsp --format AUTO
+
+# Source 2004 to 2009
+bspsrc map.bsp --format OLD
+
+# Source 2010 and later
+bspsrc map.bsp --format NEW
+```
+
+## Debug Mode
+
+If you're experiencing issues, enable debug mode for detailed output:
+
+```bash
+bspsrc map.bsp --debug
+```
+
+This will:
+- Increase verbosity to maximum
+- Add additional data to the VMF file
+- Show all configuration values
+- Display detailed BSP information
+
+## Getting Help
+
+If you encounter issues not covered here:
+
+1. Enable debug mode and review the output
+2. Check the GitHub [Issues](https://github.com/ata4/bspsrc/issues) page
+3. Open a new issue with:
+   - BSPSource version
+   - Game and map name
+   - Full command used
+   - Debug output or error messages

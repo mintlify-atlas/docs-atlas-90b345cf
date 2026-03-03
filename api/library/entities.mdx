@@ -1,0 +1,347 @@
+---
+title: Entity Classes
+description: Entity-related classes and structures for handling BSP entities and their properties
+---
+
+Entity classes provide abstractions for working with Source Engine entities, their key-values, and input/output connections.
+
+## Entity
+
+The main entity representation that works similarly to Hammer's entity system.
+
+### Constructor
+
+```java
+Entity(String className)
+```
+
+Creates a new empty entity with the given class name.
+
+**Parameters:**
+- `className` - Entity class name (must not be null or empty)
+
+```java
+Entity(List<KeyValue> kvList)
+```
+
+Creates a new entity from a list of raw key-values.
+
+**Parameters:**
+- `kvList` - Raw key-value list
+
+### Key Methods
+
+<Expandable title="Core Properties">
+
+#### getValue
+```java
+String getValue(String key)
+```
+Gets the value for a specific key.
+
+#### setValue
+```java
+void setValue(String key, Object value)
+void setValue(KeyValue kv)
+```
+Sets a key-value pair. The value is converted to a string.
+
+#### hasKey
+```java
+boolean hasKey(String key)
+```
+Checks if a key exists in the entity.
+
+#### removeValue
+```java
+void removeValue(String key)
+```
+Removes a key-value pair.
+
+</Expandable>
+
+<Expandable title="Entity Identification">
+
+#### getClassName
+```java
+String getClassName()
+```
+Returns the entity's class name.
+
+#### setClassName
+```java
+void setClassName(String value)
+```
+Sets the entity's class name.
+
+#### getTargetName
+```java
+String getTargetName()
+```
+Returns the entity's targetname property.
+
+#### setTargetName
+```java
+void setTargetName(String value)
+```
+Sets the entity's targetname property.
+
+</Expandable>
+
+<Expandable title="Vector Properties">
+
+#### getVector3f
+```java
+Vector3f getVector3f(String key)
+```
+Parses a key's value as a 3D vector. Returns null if the key doesn't exist or parsing fails.
+
+#### setVector3f
+```java
+void setVector3f(String key, Vector3f value)
+```
+Sets a key to a 3D vector value in the format "x y z".
+
+#### getOrigin
+```java
+Vector3f getOrigin()
+```
+Gets the entity's origin position.
+
+#### setOrigin
+```java
+void setOrigin(Vector3f origin)
+```
+Sets the entity's origin position.
+
+#### getAngles
+```java
+Vector3f getAngles()
+```
+Gets the entity's rotation angles. Converts from Source Engine's (Pitch, Yaw, Roll) format to (Roll, Pitch, Yaw) for standard 3D space axes.
+
+#### setAngles
+```java
+void setAngles(Vector3f a)
+```
+Sets the entity's rotation angles, converting from standard format to Source Engine format.
+
+</Expandable>
+
+<Expandable title="Model Properties">
+
+#### getModelNum
+```java
+int getModelNum()
+```
+Returns the model number for this entity.
+
+**Returns:**
+- The model number (e.g., for `*3` returns 3)
+- `-1` if no model is assigned
+- `-2` if this is a prop with a studio model
+- `0` for worldspawn
+
+#### setModelNum
+```java
+void setModelNum(int modelnum)
+```
+Sets the model number in the format `*N`.
+
+</Expandable>
+
+<Expandable title="I/O Properties">
+
+#### getIO
+```java
+List<KeyValue> getIO()
+```
+Returns the list of entity I/O connections.
+
+#### getKeys
+```java
+Set<String> getKeys()
+```
+Returns all keys in the entity.
+
+#### getValues
+```java
+Collection<String> getValues()
+```
+Returns all values in the entity.
+
+#### getEntrySet
+```java
+Set<Entry<String, String>> getEntrySet()
+```
+Returns all key-value pairs as entries.
+
+</Expandable>
+
+### Example Usage
+
+```java
+// Create a new entity
+Entity light = new Entity("light");
+light.setOrigin(new Vector3f(0, 0, 64));
+light.setValue("_light", "255 255 255 200");
+light.setValue("brightness", 1.0);
+
+// Read entity properties
+String className = light.getClassName(); // "light"
+Vector3f pos = light.getOrigin(); // Vector3f(0, 0, 64)
+boolean hasTarget = light.hasKey("targetname"); // false
+```
+
+## KeyValue
+
+Represents a single key-value pair (similar to Source Engine's `epair_t` structure).
+
+### Constructor
+
+```java
+KeyValue(String key, String value)
+```
+
+**Parameters:**
+- `key` - The key name (immutable)
+- `value` - The value string
+
+### Methods
+
+#### getKey
+```java
+String getKey()
+```
+Returns the key name.
+
+#### getValue
+```java
+String getValue()
+```
+Returns the value.
+
+#### setValue
+```java
+String setValue(String value)
+```
+Sets a new value and returns the old value.
+
+### String Format
+
+The `toString()` method returns the key-value in Source Engine format:
+
+```java
+KeyValue kv = new KeyValue("targetname", "door1");
+System.out.println(kv); // "targetname" "door1"
+```
+
+## EntityIO
+
+Handles entity input/output connections for the Source Engine I/O system.
+
+### String Separators
+
+```java
+static final char SEP_CHR_OLD = ',';        // Legacy separator
+static final char SEP_CHR_NEW = (char) 0x1b; // Modern separator (ESC)
+```
+
+### Constructor
+
+```java
+EntityIO(String entityIO)
+```
+
+Parses an entity I/O string. The format is:
+```
+targetEntity<sep>input<sep>parameter<sep>delay<sep>timesToFire
+```
+
+**Example:**
+```
+"door1,Open,,0,1"
+```
+
+### Methods
+
+<Expandable title="Static Methods">
+
+#### isEntityIO
+```java
+static boolean isEntityIO(KeyValue kv)
+```
+Checks if a KeyValue represents an entity I/O connection by counting separators.
+
+**Returns:**
+- `true` if the value contains 4 separators (standard format)
+- `true` if the value contains 6 separators (VTMB/Messiah format)
+- `false` otherwise
+
+</Expandable>
+
+<Expandable title="I/O Properties">
+
+#### getTargetEntity / setTargetEntity
+```java
+String getTargetEntity()
+void setTargetEntity(String targetEntity)
+```
+The name of the target entity to send the input to.
+
+#### getInput / setInput
+```java
+String getInput()
+void setInput(String input)
+```
+The input name to fire on the target entity.
+
+#### getParam / setParam
+```java
+String getParam()
+void setParam(String param)
+```
+The parameter value to pass with the input.
+
+#### getDelay / setDelay
+```java
+float getDelay()
+void setDelay(float delay)
+```
+The delay in seconds before firing the input.
+
+#### getTimesToFire / setTimesToFire
+```java
+int getTimesToFire()
+void setTimesToFire(int timesToFire)
+```
+How many times to fire the input (-1 for infinite).
+
+</Expandable>
+
+### Example Usage
+
+```java
+// Parse an I/O connection
+KeyValue ioKv = new KeyValue("OnTrigger", "door1,Open,,0.5,1");
+
+if (EntityIO.isEntityIO(ioKv)) {
+    EntityIO io = new EntityIO(ioKv.getValue());
+    
+    String target = io.getTargetEntity(); // "door1"
+    String input = io.getInput();         // "Open"
+    float delay = io.getDelay();          // 0.5
+    int times = io.getTimesToFire();      // 1
+}
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Lumps" icon="database" href="/api/library/lumps">
+    BSP lump types and data structures
+  </Card>
+  <Card title="Structs" icon="cube" href="/api/library/structs">
+    BSP file structures and data types
+  </Card>
+</CardGroup>

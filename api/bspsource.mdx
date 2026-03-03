@@ -1,0 +1,162 @@
+---
+title: BspSource
+description: Main control class for all decompiling modules
+---
+
+## Overview
+
+The `BspSource` class is the main control class for all decompiling modules in BSPSource. It coordinates the decompilation process for one or more BSP files, managing parallel execution and progress tracking.
+
+As the original author noted: *"A simple decompiler for HL2 bsp files"*
+
+**Package:** `info.ata4.bspsrc.decompiler`
+
+**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:56)
+
+## Constructor
+
+### BspSource
+
+```java
+public BspSource(BspSourceConfig config, List<BspFileEntry> entries)
+```
+
+Creates a new BspSource instance with the specified configuration and file entries.
+
+<ParamField path="config" type="BspSourceConfig" required>
+  Configuration settings for the decompilation process. See [BspSourceConfig](/api/bspsourceconfig) for details.
+</ParamField>
+
+<ParamField path="entries" type="List<BspFileEntry>" required>
+  List of BSP file entries to decompile. Each entry contains paths for the BSP file and output VMF file.
+</ParamField>
+
+## Public Methods
+
+### run
+
+```java
+public void run(Consumer<Signal> signalConsumer) throws InterruptedException
+```
+
+Starts the BSPSource decompilation process. Processes all entries in parallel using a work-stealing thread pool.
+
+<ParamField path="signalConsumer" type="Consumer<Signal>" required>
+  Consumer that receives progress signals during decompilation (TaskStarted, TaskFinished, TaskFailed).
+</ParamField>
+
+**Throws:**
+- `InterruptedException` - if the decompilation process is interrupted
+
+**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:78)
+
+### decompile (static)
+
+```java
+public static void decompile(BspFileEntry entry, BspSourceConfig config) 
+    throws BspSourceException, BspException
+```
+
+Starts the decompiling process for a single BSP file. This is the core decompilation logic.
+
+<ParamField path="entry" type="BspFileEntry" required>
+  The BSP file entry containing input BSP path and output VMF path.
+</ParamField>
+
+<ParamField path="config" type="BspSourceConfig" required>
+  Configuration settings for the decompilation.
+</ParamField>
+
+**Throws:**
+- `BspSourceException` - if an error occurs during decompilation
+- `BspException` - if there's an error loading or processing the BSP file
+
+**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:142)
+
+### getEntryUuids
+
+```java
+public List<UUID> getEntryUuids()
+```
+
+Returns the list of UUIDs for each entry, used for tracking tasks in logging.
+
+**Returns:** List of UUIDs corresponding to each entry
+
+**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:240)
+
+## Public Fields
+
+### VERSION
+
+```java
+public static final String VERSION = "1.4.8-DEV"
+```
+
+The current version string of BSPSource.
+
+**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:61)
+
+### DECOMPILE_TASK_ID_IDENTIFIER
+
+```java
+public static final String DECOMPILE_TASK_ID_IDENTIFIER = "decompile_id"
+```
+
+The thread context key identifier used for tracking decompilation tasks in logs.
+
+**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:59)
+
+## Nested Types
+
+### Signal (sealed interface)
+
+Signals emitted during the decompilation process:
+
+- `TaskStarted(int index)` - Emitted when a task starts
+- `TaskFinished(int index)` - Emitted when a task completes successfully
+- `TaskFailed(int index, Throwable exception)` - Emitted when a task fails
+
+**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:244)
+
+## Usage Example
+
+```java
+import info.ata4.bspsrc.decompiler.BspSource;
+import info.ata4.bspsrc.decompiler.BspSourceConfig;
+import info.ata4.bspsrc.decompiler.BspFileEntry;
+import java.nio.file.Path;
+import java.util.List;
+
+// Create configuration
+BspSourceConfig config = new BspSourceConfig();
+config.writeWorldBrushes = true;
+config.writeEntities = true;
+
+// Create file entry
+BspFileEntry entry = new BspFileEntry(
+    Path.of("maps/dm_example.bsp"),
+    Path.of("output/dm_example.vmf")
+);
+
+// Create BspSource instance
+BspSource bspSource = new BspSource(config, List.of(entry));
+
+// Run decompilation with progress tracking
+bspSource.run(signal -> {
+    switch (signal) {
+        case BspSource.Signal.TaskStarted(int index) -> 
+            System.out.println("Started task " + index);
+        case BspSource.Signal.TaskFinished(int index) -> 
+            System.out.println("Finished task " + index);
+        case BspSource.Signal.TaskFailed(int index, Throwable e) -> 
+            System.err.println("Task " + index + " failed: " + e.getMessage());
+    }
+});
+```
+
+## See Also
+
+- [BspSourceConfig](/api/bspsourceconfig) - Configuration options
+- [BspFile](/api/bspfile) - BSP file handling
+- [BspFileReader](/api/bspfilereader) - Reading BSP data structures

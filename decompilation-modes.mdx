@@ -1,0 +1,135 @@
+---
+title: Decompilation Modes
+description: Understanding BSPSource's brush decompilation modes
+icon: cube
+---
+
+BSPSource offers four different brush modes that control how geometry is reconstructed from compiled BSP data. Each mode has different trade-offs between accuracy and editability.
+
+## BrushMode Options
+
+The decompilation mode is controlled by the `brushMode` configuration option:
+
+```java
+config.brushMode = BrushMode.BRUSHPLANES; // Default
+```
+
+### BRUSHPLANES
+
+**Description:** "Brushes and planes"
+
+This is the default and recommended mode. It reconstructs the original brush geometry using plane data from the BSP.
+
+**Advantages:**
+- Most accurate reconstruction of original brushes
+- Produces clean, editable geometry
+- Works with Hammer's brush manipulation tools
+- Best for maps you want to edit further
+
+**Use when:**
+- You need to edit the decompiled map
+- You want the closest approximation to the original VMF
+- You're working with standard brush-based geometry
+
+### ORIGFACE
+
+**Description:** "Original faces"
+
+Reconstructs geometry using the original face data before BSP splitting.
+
+**Advantages:**
+- Preserves original face boundaries
+- Good for maps with complex face structures
+
+**Limitations:**
+- May not reconstruct perfect brushes
+- Some geometry may require manual cleanup
+
+**Use when:**
+- BRUSHPLANES mode produces incorrect geometry
+- You need to preserve specific face boundaries
+- Working with displacement surfaces
+
+### ORIGFACE_PLUS
+
+**Description:** "Original plus split faces"
+
+Combines original face data with split face information for more complete reconstruction.
+
+**Advantages:**
+- More complete geometry than ORIGFACE alone
+- Handles complex face splitting better
+
+**Trade-offs:**
+- May produce more complex geometry
+- Can create additional cleanup work
+
+**Use when:**
+- ORIGFACE produces incomplete results
+- You need both original and split face data
+- Dealing with heavily optimized geometry
+
+### SPLITFACE
+
+**Description:** "Split faces"
+
+Uses only the split face data from BSP compilation.
+
+**Characteristics:**
+- Produces the most fragmented geometry
+- Reflects the actual compiled face splits
+- Least editable output
+
+**Use when:**
+- Other modes fail to produce valid geometry
+- You're analyzing compiled face structure
+- You don't plan to edit the result
+
+## Configuration Example
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+
+// Set brush mode
+config.brushMode = BrushMode.BRUSHPLANES;
+
+// Related geometry options
+config.writeWorldBrushes = true;
+config.writeDisp = true;
+config.backfaceDepth = 1;
+```
+
+## Mode Selection Guide
+
+<AccordionGroup>
+  <Accordion title="Editing the decompiled map">
+    Use **BRUSHPLANES** for the most editable geometry that works well with Hammer's tools.
+  </Accordion>
+
+  <Accordion title="Geometry appears broken in BRUSHPLANES">
+    Try **ORIGFACE** first, then **ORIGFACE_PLUS** if needed.
+  </Accordion>
+
+  <Accordion title="Analyzing BSP structure">
+    Use **SPLITFACE** to see exactly how VBSP split the geometry during compilation.
+  </Accordion>
+
+  <Accordion title="Maximum compatibility">
+    **BRUSHPLANES** is the safest default that works for most maps.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  The brush mode affects both world brushes and brush entities (func_detail, func_door, etc.).
+</Note>
+
+## Related Options
+
+- **writeWorldBrushes**: Enable/disable world brush decompilation
+- **writeDisp**: Include displacement surfaces
+- **backfaceDepth**: Depth for backface reconstruction (default: 1)
+- **writeBrushEntities**: Enable/disable brush entity decompilation
+
+<Warning>
+  Some heavily protected or optimized maps may not decompile correctly in any mode. See [Protection Detection](/protection-detection) for more information.
+</Warning>

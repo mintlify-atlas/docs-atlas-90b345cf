@@ -1,0 +1,339 @@
+---
+title: EntitySource
+description: Module for writing point and brush entities from BSP entity data
+---
+
+## Overview
+
+The `EntitySource` class is a decompiling module responsible for writing point and brush entities converted from various BSP lumps. It handles the reconstruction of all entity types including brush entities, point entities, overlays, static props, cubemaps, ladders, and special entities like areaportals and occluders.
+
+This module is based on several entity building methods from Vmex.
+
+**Package:** `info.ata4.bspsrc.decompiler.modules.entity`
+
+## Constructor
+
+```java
+public EntitySource(
+    BspFileReader reader,
+    VmfWriter writer,
+    BspSourceConfig config,
+    BrushSource brushsrc,
+    FaceSource facesrc,
+    TextureSource texsrc,
+    BspProtection bspprot,
+    VmfMeta vmfmeta,
+    BrushSideFaceMapper brushSideFaceMapper,
+    WindingFactory windingFactory,
+    BrushBounds brushBounds,
+    AreaportalMapper.ReallocationData areaportalReallocationData,
+    OccluderMapper.ReallocationData occluderReallocationData
+)
+```
+
+<ParamField path="reader" type="BspFileReader" required>
+  BSP file reader for accessing BSP data
+</ParamField>
+
+<ParamField path="writer" type="VmfWriter" required>
+  VMF writer for outputting entity data
+</ParamField>
+
+<ParamField path="config" type="BspSourceConfig" required>
+  Configuration settings for decompilation
+</ParamField>
+
+<ParamField path="brushsrc" type="BrushSource" required>
+  BrushSource module for writing entity brushes
+</ParamField>
+
+<ParamField path="facesrc" type="FaceSource" required>
+  FaceSource module for writing face-based brushes
+</ParamField>
+
+<ParamField path="texsrc" type="TextureSource" required>
+  Texture source module for material handling
+</ParamField>
+
+<ParamField path="bspprot" type="BspProtection" required>
+  BSP protection handler
+</ParamField>
+
+<ParamField path="vmfmeta" type="VmfMeta" required>
+  VMF metadata handler for UIDs and visgroups
+</ParamField>
+
+<ParamField path="brushSideFaceMapper" type="BrushSideFaceMapper" required>
+  Mapper for brush side to face relationships
+</ParamField>
+
+<ParamField path="windingFactory" type="WindingFactory" required>
+  Factory for creating winding geometry
+</ParamField>
+
+<ParamField path="brushBounds" type="BrushBounds" required>
+  Utility for calculating brush bounding boxes
+</ParamField>
+
+<ParamField path="areaportalReallocationData" type="AreaportalMapper.ReallocationData" required>
+  Areaportal reallocation data
+</ParamField>
+
+<ParamField path="occluderReallocationData" type="OccluderMapper.ReallocationData" required>
+  Occluder reallocation data
+</ParamField>
+
+## Public Methods
+
+### writeEntities
+
+```java
+public void writeEntities()
+```
+
+Writes all brush and point entities except for internal entities handled by separate methods.
+
+**Writes:**
+- Brush entities with associated models
+- Point entities (lights, triggers, logic, etc.)
+- func_areaportal entities
+- func_occluder entities
+
+**Skips:**
+- worldspawn (handled separately)
+- env_cubemap (use `writeCubemaps()`)
+- info_overlay (use `writeOverlays()`)
+- prop_static (use `writeStaticProps()`)
+- func_detail brushes (use `writeDetails()`)
+- info_ladder entities (engine-only)
+
+**Behavior:**
+- Reuses hammerid from BSP when available
+- Applies entity rotation fixing if `config.fixEntityRot` is enabled
+- Writes entity I/O connections
+- Organizes entities into visgroups (instances, protection flags, objectives)
+- Handles areaportal and occluder brush writing or rebuilding
+
+### writeDetails
+
+```java
+public void writeDetails()
+```
+
+Writes all `func_detail` entities by identifying detail-flagged brushes.
+
+**Behavior:**
+- Filters brushes marked as detail, solid, or translucent
+- Groups detail brushes if `config.detailMerge` is enabled
+- Merges nearby brushes within `config.detailMergeThresh` distance
+- Writes protected brushes separately with visgroup metadata
+
+### writeVisClusters
+
+```java
+public void writeVisClusters()
+```
+
+Writes `func_viscluster` entities reconstructed from BSP visibility data.
+
+**Behavior:**
+- Groups BSP leaves by cluster ID
+- Calculates bounding boxes for each cluster
+- Writes trigger brushes representing visibility clusters
+- Adds debug leaf geometry if `config.debug` is enabled
+
+### writeOverlays
+
+```java
+public void writeOverlays()
+```
+
+Writes all `info_overlay` entities.
+
+**Behavior:**
+- Calculates U/V basis vectors from overlay data
+- Maps overlays to brush side IDs
+- Handles both displacement and brush side overlays
+- Writes fade distances and system levels if present
+- Links overlays to info_overlay_accessor targetnames
+- Skips overlays with origins or UV points outside map bounds
+
+### writeStaticProps
+
+```java
+public void writeStaticProps()
+```
+
+Writes all `prop_static` entities.
+
+**Behavior:**
+- Writes all static prop properties (origin, angles, skin, fade distances, etc.)
+- Creates `info_lighting` entities for lighting origins
+- Handles version-specific properties (DX levels, scaling, diffuse modulation)
+- Supports various static prop versions (v4-v13)
+
+### writeCubemaps
+
+```java
+public void writeCubemaps()
+```
+
+Writes all `env_cubemap` entities.
+
+**Behavior:**
+- Writes cubemap position and size
+- Attempts to map cubemaps to brush sides
+- Limits side list if count exceeds `config.maxCubemapSides`
+
+### writeLadders
+
+```java
+public void writeLadders()
+```
+
+Writes all `func_ladder` entities from ladder-flagged brushes.
+
+**Behavior:**
+- Scans world brushes for ladder content flag
+- Writes each ladder brush as a func_ladder entity
+
+### setNmo
+
+```java
+public void setNmo(NmoFile nmoData)
+```
+
+Sets No More Room in Hell (NMRIH) objective data for enhanced decompilation.
+
+<ParamField path="nmoData" type="NmoFile" required>
+  NMO file data containing objective and extraction information
+</ParamField>
+
+**Behavior:**
+- Enables objective/anti-objective visgroup organization
+- Reuses extraction entity IDs from NMO data
+- Reserves visgroup IDs for objectives
+
+## Configuration Options
+
+This module respects the following configuration options from `BspSourceConfig`:
+
+- **writePointEntities** - Enable writing point entities
+- **writeBrushEntities** - Enable writing brush entities
+- **writeAreaportals** - Enable writing func_areaportal entities
+- **writeOccluders** - Enable writing func_occluder entities
+- **writeLadders** - Enable writing func_ladder entities
+- **writeDetails** - Enable writing func_detail entities
+- **writeDisp** - Enable displacement data in face brushes
+- **fixEntityRot** - Apply rotation to entity brushes ("bake" rotation)
+- **detailMerge** - Merge nearby detail brushes into groups
+- **detailMergeThresh** - Distance threshold for detail brush merging
+- **maxCubemapSides** - Maximum brush sides to assign to cubemaps
+- **brushMode** - Brush writing mode (BRUSHPLANES or FACES)
+- **sourceFormat** - VMF format conversion (OLD/NEW/AUTO)
+- **debug** - Write debugging metadata
+
+## Usage Example
+
+```java
+// Initialize dependencies
+BspFileReader reader = new BspFileReader(bspFile);
+VmfWriter writer = new VmfWriter(outputFile);
+BspSourceConfig config = new BspSourceConfig();
+config.writePointEntities = true;
+config.writeBrushEntities = true;
+config.fixEntityRot = true;
+config.detailMerge = true;
+config.detailMergeThresh = 8.0;
+
+// Create EntitySource module
+EntitySource entitySource = new EntitySource(
+    reader, writer, config, brushsrc, facesrc, texsrc,
+    bspprot, vmfmeta, brushSideFaceMapper, windingFactory,
+    brushBounds, areaportalReallocationData, occluderReallocationData
+);
+
+// Write all entities
+entitySource.writeEntities();
+
+// Write detail brushes
+entitySource.writeDetails();
+
+// Write overlays
+entitySource.writeOverlays();
+
+// Write static props
+entitySource.writeStaticProps();
+
+// Write cubemaps
+entitySource.writeCubemaps();
+
+// Write ladders (for object-based ladder games)
+entitySource.writeLadders();
+
+// Optional: Set NMRIH objective data
+if (nmoFile != null) {
+    entitySource.setNmo(nmoFile);
+}
+```
+
+## Implementation Details
+
+### Entity Processing
+
+The constructor calls `processEntities()` which:
+- Fixes worldspawn properties (removes world_mins/maxs, rebuilds mapversion)
+- Converts VMF format (old vs new I/O separator) if requested
+- Processes `func_simpleladder` → `func_ladder` conversion (L4D branch)
+- Fixes light entities (style/defaultstyle handling)
+- Creates camera positions from info_player_* entities
+- Blacklists hammerids to prevent UID conflicts
+
+### Entity Rotation Fixing
+
+When `fixEntityRot` is enabled:
+- Brush entity rotations are "baked" into brush geometry
+- Origin and angles are applied to all brush sides
+- The `angles` keyvalue is removed from the entity
+- Improves Hammer editor display (Hammer doesn't show entity rotation)
+
+### Detail Brush Merging
+
+When `detailMerge` is enabled:
+- Detail brushes are grouped by spatial proximity
+- Bounding boxes are expanded by `detailMergeThresh`
+- Intersecting groups are merged together
+- Reduces entity count in output VMF
+
+### Visgroup Organization
+
+Entities are automatically organized into visgroups:
+
+- **Reallocated** - Areaportals/occluders using original brush data
+- **Rebuild** - Areaportals/occluders rebuilt from face geometry
+- **Instances** - Entities with instance prefix in targetname (e.g., "prefix-name")
+- **VMEX flagged entities** - Entities with protection flags
+- **Objectives** - NMRIH objective-related entities (when NMO data is set)
+
+### Areaportal & Occluder Handling
+
+These entities have special handling:
+
+1. **Brush Mode (BRUSHPLANES):** Uses reallocated original brushes if available
+2. **Face Mode:** Rebuilds from areaportal/occluder geometry
+3. Validates portal numbers and geometry before writing
+4. Debug mode writes additional visualization entities
+
+### Overlay Mapping
+
+Overlays are mapped to brush sides differently based on brush mode:
+
+- **BRUSHPLANES:** Maps overlay faces → original faces → brush sides
+- **FACES:** Maps overlay faces directly to written face IDs
+- Handles displacement overlays via dispinfo UID mapping
+
+## Related Modules
+
+- [BrushSource](/api/modules/brush-source) - Brush geometry writing
+- [FaceSource](/api/modules/face-source) - Face-based brush writing
+- TextureSource - Texture and material handling

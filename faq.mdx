@@ -1,0 +1,207 @@
+---
+title: Frequently Asked Questions
+description: Common questions about BSPSource
+---
+
+<AccordionGroup>
+  <Accordion title="Can you support [specific game]?">
+    Generally speaking, most Source engine games should work with BSPSource out of the box, even though they might not be explicitly "supported".
+
+    **Supported engines:**
+    - Source engine games (Half-Life 2, Portal, Team Fortress 2, CS:GO, Dota 2, etc.)
+
+    **Not supported:**
+    - **GoldSrc** (Half-Life 1, Counter-Strike 1.6) - uses a different map format
+    - **Source 2** (Half-Life: Alyx, Dota 2 Reborn, CS2) - uses a completely different map format
+
+    If you run into any problems or errors with any particular game or map, feel free to open an [Issue](https://github.com/ata4/bspsrc/issues) on GitHub.
+  </Accordion>
+
+  <Accordion title="Help, all the textures are gray/models are errors!">
+    Most of the time this is due to the materials/models not existing in the base game but rather being embedded in the BSP file.
+
+    This can frequently happen with:
+    - Workshop maps
+    - Maps using CS:GO's autocombine prop feature
+    - Custom community maps
+
+    **Solution:**
+
+    1. Extract embedded files by checking **Extract embedded files** in the GUI, or use the CLI flag:
+       ```bash
+       bspsrc map.bsp --unpack_embedded
+       ```
+
+    2. Move the contents of the extracted material/model folders into your game's material/model folder:
+       - Copy `materials/` to `[game]/materials/`
+       - Copy `models/` to `[game]/models/`
+
+    The textures and models should now appear correctly in Hammer.
+  </Accordion>
+
+  <Accordion title="What's the difference between BSPSource and VMEX?">
+    BSPSource is based on a reengineered version of VMEX 0.98g by Rof, which is no longer developed.
+
+    **Key improvements in BSPSource:**
+    - Support for more and newer Source engine games up to Dota 2
+    - Support for new entity types (func_areaportal, func_areaportalwindow, func_occluder, info_lighting)
+    - Support for the tools/blocklight texture
+    - Support for compressed and big-endian encoded maps (Xbox 360, PS3)
+    - Decompiles VMEX maps flagged with protection
+    - Improved support for prop_static and info_overlay
+    - New graphical user interface with output window
+    - New command line interface
+    - Integrated pakfile extractor
+    - Numerous bug fixes
+    - Open source
+  </Accordion>
+
+  <Accordion title="Can I decompile protected maps?">
+    BSPSource can decompile maps that were flagged with VMEX protection and can detect other anti-decompiling methods.
+
+    However:
+    - Some protection methods may still prevent decompilation
+    - The quality of the decompiled output may vary
+    - Respect map creators' wishes and intellectual property
+
+    Use the `--no_prot` flag to skip protection checking:
+    ```bash
+    bspsrc map.bsp --no_prot
+    ```
+  </Accordion>
+
+  <Accordion title="How do I decompile multiple maps at once?">
+    BSPSource supports batch decompilation in several ways:
+
+    **Method 1: Multiple files**
+    ```bash
+    bspsrc map1.bsp map2.bsp map3.bsp --output ./decompiled/
+    ```
+
+    **Method 2: Entire directory**
+    ```bash
+    bspsrc ./maps/ --output ./decompiled/
+    ```
+
+    **Method 3: Recursive directory search**
+    ```bash
+    bspsrc ./maps/ --recursive --output ./decompiled/
+    ```
+
+    **Method 4: File list**
+    Create a text file with one BSP path per line:
+    ```txt
+    /path/to/map1.bsp
+    /path/to/map2.bsp
+    /path/to/map3.bsp
+    ```
+
+    Then use:
+    ```bash
+    bspsrc maplist.txt --list --output ./decompiled/
+    ```
+  </Accordion>
+
+  <Accordion title="What Java version do I need?">
+    BSPSource requires **Java 24 or higher**.
+
+    **Check your Java version:**
+    ```bash
+    java --version
+    ```
+
+    If you download the platform-specific builds (`bspsrc-windows.zip` or `bspsrc-linux.zip`), Java is included and you don't need to install it separately.
+
+    The `bspsrc-jar-only.zip` requires Java 24+ to be installed and configured on your system.
+  </Accordion>
+
+  <Accordion title="Why are some entities missing or incorrect?">
+    Some internal entities are entirely consumed by VBSP during compilation and cannot be perfectly restored. See the [Limitations](/limitations) page for details.
+
+    Common missing entities:
+    - func_instance
+    - func_instance_parms
+    - func_instance_origin
+    - func_viscluster
+    - info_no_dynamic_shadow
+
+    These entities are processed during compilation and don't exist in the compiled BSP file.
+  </Accordion>
+
+  <Accordion title="Can I use the decompiled VMF commercially?">
+    This depends on:
+    - The original map's license
+    - The game's terms of service
+    - Intellectual property rights of the original creator
+
+    **Important:**
+    - Respect the original map creator's rights
+    - Check the game's modding policy
+    - Don't redistribute copyrighted content
+    - Give credit where appropriate
+
+    BSPSource is a tool for learning, modding, and reverse engineering. Use it responsibly.
+  </Accordion>
+
+  <Accordion title="How do I run BSPSource on Linux?">
+    1. Download `bspsrc-linux.zip` from the [releases page](https://github.com/ata4/bspsrc/releases)
+    2. Extract the contents
+    3. Run using the shell script:
+       ```bash
+       ./bspsrc.sh map.bsp
+       ```
+
+    Or use the jar-only version:
+    ```bash
+    java -jar bspsrc.jar map.bsp
+    ```
+  </Accordion>
+
+  <Accordion title="What's the difference between GUI and CLI?">
+    **GUI (Graphical User Interface):**
+    - User-friendly visual interface
+    - Good for single map decompilation
+    - Output window shows progress
+    - Easy to configure options
+
+    **CLI (Command Line Interface):**
+    - Scriptable and automatable
+    - Better for batch processing
+    - Can be integrated into workflows
+    - More options and flexibility
+
+    Both use the same decompilation engine and produce identical results.
+  </Accordion>
+
+  <Accordion title="Why is my decompiled map huge in file size?">
+    Decompiled VMF files are typically much larger than the original BSP because:
+    - BSP files are compiled and optimized
+    - VMF files contain detailed brush geometry in text format
+    - BSP compilation removes redundant data
+
+    **To reduce file size:**
+    - Disable entity types you don't need (see [CLI Options](/cli-reference))
+    - Use `--no_sprp` to skip prop_static entities
+    - Use `--no_overlays` to skip overlay entities
+    - Use simpler brush modes
+  </Accordion>
+
+  <Accordion title="Can BSPSource recover the original .vmf exactly?">
+    No, BSPSource cannot perfectly recreate the original VMF file.
+
+    **Why:**
+    - The BSP compilation process is lossy
+    - Some entities are consumed during compilation
+    - Brush geometry is converted and optimized
+    - Original brush shapes may be approximated
+    - Instance data is flattened
+
+    **What you get:**
+    - A functionally similar VMF
+    - The compiled level geometry
+    - Entity placements and properties
+    - A good starting point for modifications
+
+    See [Limitations](/limitations) for more details.
+  </Accordion>
+</AccordionGroup>

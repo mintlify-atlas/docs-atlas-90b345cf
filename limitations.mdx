@@ -1,0 +1,292 @@
+---
+title: Known Limitations
+description: Limitations and unsupported features in BSPSource
+---
+
+BSPSource is a powerful decompiler, but it cannot perfectly restore all information from a compiled BSP file. The compilation process is lossy by design, and some data is transformed or removed entirely.
+
+## Unsupported Entities
+
+Some internal entities are entirely consumed by VBSP during compilation and cannot be perfectly restored. These entities are processed during the build process and don't exist in the final BSP file.
+
+### func_instance
+
+[func_instance](http://developer.valvesoftware.com/wiki/func_instance) entities allow you to reuse map sections by referencing external VMF files. During compilation, VBSP flattens instances into the map geometry.
+
+**Impact:**
+- Instances appear as regular brushes and entities
+- Original instance VMF references are lost
+- Cannot recover modular map structure
+
+**Workaround:**
+- Decompiled entities from instances may be grouped in visgroups (unless disabled with `--no_visgroups`)
+
+### func_instance_parms
+
+[func_instance_parms](http://developer.valvesoftware.com/wiki/func_instance_parms) entities define parameters for instances. These are resolved during compilation.
+
+**Impact:**
+- Instance parameters cannot be recovered
+- Variable substitution is already applied
+
+### func_instance_origin
+
+[func_instance_origin](http://developer.valvesoftware.com/wiki/func_instance_origin) entities define custom origin points for instances.
+
+**Impact:**
+- Instance origins are baked into geometry
+- Original offset information is lost
+
+### func_viscluster
+
+[func_viscluster](http://developer.valvesoftware.com/wiki/func_viscluster) entities optimize visibility calculations during compilation.
+
+**Impact:**
+- Visibility optimization data is not stored in BSP
+- Cannot recover original viscluster configuration
+
+**Note:**
+- You can disable writing partial viscluster data with `--no_visclusters`
+
+### info_no_dynamic_shadow
+
+[info_no_dynamic_shadow](http://developer.valvesoftware.com/wiki/info_no_dynamic_shadow) entities control shadow rendering and are consumed during light compilation.
+
+**Impact:**
+- Shadow optimization hints are not stored in BSP
+- Cannot recover original shadow control entities
+
+## Brush Geometry Limitations
+
+### Brush Approximation
+
+BSP compilation converts brushes into planes and faces. BSPSource attempts to reconstruct brushes, but:
+
+- Original brush shapes may be approximated
+- Complex brushes may become multiple simpler brushes
+- Vertex-edited brushes may not match exactly
+
+**Mitigation:**
+- Use different brush modes to improve results:
+  ```bash
+  bspsrc map.bsp --brushmode BRUSHPLANES  # Brushes and planes (default)
+  bspsrc map.bsp --brushmode ORIGFACE     # Original faces only
+  bspsrc map.bsp --brushmode ORIGFACE_PLUS # Original + split faces
+  bspsrc map.bsp --brushmode SPLITFACE    # Split faces only
+  ```
+
+### Displacement Surfaces
+
+Displacements are generally well-preserved, but:
+
+- Extremely fine displacement details may be lost
+- Blending between displacements may differ
+- Displacement paint effects are approximated
+
+### Brush Entity IDs
+
+Original entity IDs and brush IDs are not preserved:
+
+- New IDs are generated during decompilation
+- Entity references may need to be re-established
+- Named entities preserve their targetnames
+
+## Texture Limitations
+
+### Material Parameters
+
+While texture names are preserved, some material parameters are not:
+
+- Custom surface properties set in Hammer
+- Texture lock information
+- Texture justification mode
+
+### Tool Textures
+
+Some tool textures are automatically fixed (unless disabled with `--no_ttfix`):
+
+- toolsnodraw
+- toolsblocklight
+- Other tool textures
+
+However, the original tool texture usage may differ slightly from the decompiled version.
+
+## Entity Limitations
+
+### Entity Properties
+
+Most entity properties are preserved, but:
+
+- Some internal properties added by VBSP are included
+- Editor-only properties may be lost
+- Comments and annotations are not preserved
+
+### Prop_static
+
+While prop_static entities are generally well-supported:
+
+- Some rendering flags may be approximated
+- Autocombined props (CS:GO) require embedded file extraction
+- Collision model information may be incomplete
+
+### Info_overlay
+
+Overlays are supported but:
+
+- Very complex overlays (>64 sides by default) may be simplified
+- Use `--no_overlays` to skip them entirely
+- Adjust maximum sides with config if needed
+
+## Compilation Artifacts
+
+### VBSP-Generated Content
+
+VBSP generates additional content during compilation:
+
+- Areaportal brushes
+- Occluder brushes
+- Cubemap entities
+- Detail entities
+
+This generated content is included in the decompiled output and may not match the original VMF structure.
+
+**Smart unpacking** (enabled by default) filters out VBSP-generated files when extracting embedded content.
+
+### Lighting Information
+
+Compiled lighting is baked into the BSP and cannot be decompiled:
+
+- Light entities are preserved
+- Light_environment settings are preserved
+- But radiosity data, light bounces, and HDR information are compiled
+
+### Optimization
+
+VBSP performs various optimizations:
+
+- Brush merging
+- Face splitting
+- Visibility optimization
+- Texture alignment
+
+These optimizations cannot be perfectly reversed.
+
+## Game-Specific Limitations
+
+### No More Room in Hell
+
+Maps for objective game mode require an `.nmo` file alongside the BSP:
+
+- Without the .nmo file, objectives will be missing
+- Ensure the .nmo file is in the same directory as the BSP
+
+### Console Platforms
+
+Maps for Xbox 360 and PS3 use different encoding:
+
+- Big-endian format is supported
+- Compressed maps are supported
+- But platform-specific optimizations may cause differences
+
+### Source 2
+
+Source 2 engine games are **not supported**:
+
+- Half-Life: Alyx
+- Counter-Strike 2
+- Dota 2 Reborn (Source 2 version)
+
+These games use a completely different map format.
+
+### GoldSrc
+
+GoldSrc engine games are **not supported**:
+
+- Half-Life 1
+- Counter-Strike 1.6
+- Team Fortress Classic
+
+These games use a different BSP format.
+
+## Workflow Limitations
+
+### Cannot Recover
+
+The following cannot be recovered from a compiled BSP:
+
+- Cordon bounds
+- Hammer editor camera positions (except player spawn cameras if enabled)
+- Visgroup organization (except instance-based visgroups)
+- Map notes and comments
+- Undo history
+- Custom editor settings
+- Grid settings
+
+### Version Control
+
+Decompiled VMFs are not suitable for version control comparison:
+
+- Entity IDs are regenerated
+- Brush ordering may differ
+- Formatting may not match original
+
+## Performance Considerations
+
+### Large Maps
+
+Very large or complex maps may:
+
+- Take significant time to decompile
+- Produce very large VMF files (hundreds of MB)
+- Be slow to load in Hammer
+
+**Mitigation:**
+- Disable unnecessary entity types
+- Use `--no_sprp` to skip prop_static
+- Use `--no_overlays` to skip overlays
+- Use simpler brush modes
+
+### Memory Usage
+
+Decompiling complex maps can require significant memory:
+
+- Java heap space may need adjustment
+- Large embedded file extraction uses disk space
+
+## Best Practices
+
+### Use Decompiled Maps As
+
+- A starting point for modifications
+- A learning resource to study level design
+- A reference for reverse engineering techniques
+- A recovery tool for lost source files
+
+### Don't Expect
+
+- Pixel-perfect recreation of original VMF
+- Preservation of all editor metadata
+- Ability to continue development as if you had the original
+- Perfect brush geometry matching
+
+### Tips
+
+- Always keep backups of original VMF files
+- Document your maps outside of Hammer
+- Use source control for original work
+- Extract embedded files when needed
+- Experiment with different brush modes
+- Use debug mode (`--debug`) to understand what's happening
+
+## Reporting Issues
+
+If you believe you've found a bug or limitation that could be improved:
+
+1. Enable debug mode: `bspsrc map.bsp --debug`
+2. Check if the issue is a known limitation
+3. Open an issue on [GitHub](https://github.com/ata4/bspsrc/issues) with:
+   - BSPSource version
+   - Game and map name
+   - Full command used
+   - Debug output
+   - Description of expected vs actual behavior

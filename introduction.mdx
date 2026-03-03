@@ -1,0 +1,124 @@
+---
+title: "Introduction"
+description: "A powerful map decompiler for Source engine games"
+---
+
+## Welcome to BSPSource
+
+BSPSource is a map decompiler for [Source engine](http://developer.valvesoftware.com/wiki/Source) maps, written in Java. It decompiles .bsp map files back to .vmf files that can be loaded in Hammer, Valve's official level editor.
+
+<Note>
+  **Current Version:** 1.4.8-DEV
+</Note>
+
+BSPSource is based on a reengineered version of VMEX 0.98g by Rof, which is no longer developed and lacks support for newer Source engine games.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Wide Game Support" icon="gamepad">
+    Works with most Source engine games out of the box, from Half-Life 2 to Dota 2
+  </Card>
+  
+  <Card title="Advanced Entity Support" icon="cubes">
+    Decompiles func_areaportal, func_occluder, info_lighting, and more
+  </Card>
+  
+  <Card title="Embedded File Extraction" icon="box-archive">
+    Extract materials, models, and other files embedded in BSP files
+  </Card>
+  
+  <Card title="Protection Detection" icon="shield">
+    Decompiles VMEX maps flagged with protection and detects anti-decompiling methods
+  </Card>
+  
+  <Card title="Multiple Decompilation Modes" icon="sliders">
+    Choose from brushes/planes, original faces, or split faces modes
+  </Card>
+  
+  <Card title="GUI and CLI" icon="terminal">
+    Use the graphical interface or powerful command-line tools
+  </Card>
+</CardGroup>
+
+## Improvements Over VMEX 0.98g
+
+<AccordionGroup>
+  <Accordion title="Game Support">
+    - Support for more and newer Source engine games up to Dota 2
+    - Support for compressed and big-endian encoded maps (Xbox 360, PS3)
+  </Accordion>
+  
+  <Accordion title="Entity Support">
+    New entity types supported:
+    - func_areaportal
+    - func_areaportalwindow
+    - func_occluder
+    - info_lighting
+  </Accordion>
+  
+  <Accordion title="Technical Improvements">
+    - Support for the tools/blocklight texture
+    - Improved support for prop_static and info_overlay
+    - Improved console output
+    - New integrated pakfile extractor
+    - Numerous bug fixes
+    - Open source
+  </Accordion>
+</AccordionGroup>
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Download and install BSPSource on your platform
+  </Card>
+  
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Decompile your first BSP file in minutes
+  </Card>
+</CardGroup>
+
+## Common Use Cases
+
+<Steps>
+  <Step title="Learning from existing maps">
+    Study how professional maps are built by decompiling and examining them in Hammer
+  </Step>
+  
+  <Step title="Recovering lost work">
+    Recover VMF files when you only have the compiled BSP
+  </Step>
+  
+  <Step title="Extracting embedded assets">
+    Extract custom materials and models from workshop maps for use in Hammer
+  </Step>
+  
+  <Step title="Map modification">
+    Create modified versions of existing maps with proper source files
+  </Step>
+</Steps>
+
+<Warning>
+  Some entities that are entirely consumed by vbsp cannot be perfectly restored, including func_instance, func_instance_parms, func_instance_origin, func_viscluster, and info_no_dynamic_shadow.
+</Warning>
+
+## Supported Engines
+
+<CardGroup cols={3}>
+  <Card title="Source Engine" icon="check">
+    Fully supported
+  </Card>
+  
+  <Card title="GoldSrc" icon="xmark">
+    Not supported
+  </Card>
+  
+  <Card title="Source 2" icon="xmark">
+    Not supported
+  </Card>
+</CardGroup>
+
+<Note>
+  Generally speaking, most Source engine games should work with BSPSource out of the box, even if not explicitly "supported". If you encounter problems with any particular game or map, feel free to open an [issue on GitHub](https://github.com/ata4/bspsrc/issues).
+</Note>

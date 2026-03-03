@@ -1,0 +1,522 @@
+---
+title: BSP Structures
+description: BSP file structures and data types for map geometry and metadata
+---
+
+BSP structures represent the various data types stored in BSP lumps, from geometric primitives to complex surface definitions.
+
+## DStruct Interface
+
+All BSP structures implement the `DStruct` interface, which provides serialization capabilities.
+
+```java
+public interface DStruct extends Struct {
+    int getSize();
+}
+```
+
+### Methods
+
+- `getSize()` - Returns the size of the structure in bytes
+- `read(DataReader in)` - Reads the structure from a data stream
+- `write(DataWriter out)` - Writes the structure to a data stream
+
+## BspData
+
+Central data structure containing all parsed BSP lumps as Java collections.
+
+### Fields
+
+<Expandable title="Geometric Data">
+
+```java
+List<DPlane> planes;              // Plane equations
+List<DVertex> verts;              // Vertex positions
+List<? extends DEdge> edges;      // Edge definitions
+List<? extends Integer> surfEdges; // Surface edge indices
+List<? extends DFace> faces;      // Face definitions
+List<? extends DFace> origFaces;  // Original faces (pre-VRAD)
+```
+
+</Expandable>
+
+<Expandable title="BSP Tree">
+
+```java
+List<? extends DNode> nodes;      // BSP tree nodes
+List<? extends DLeaf> leaves;     // BSP tree leaves
+List<Integer> leafFaces;          // Leaf-to-face mapping
+List<Integer> leafBrushes;        // Leaf-to-brush mapping
+```
+
+</Expandable>
+
+<Expandable title="Brushes & Models">
+
+```java
+List<DBrush> brushes;             // Brush definitions
+List<? extends DBrushSide> brushSides; // Brush side planes
+List<? extends DModel> models;    // Brush models
+```
+
+</Expandable>
+
+<Expandable title="Textures">
+
+```java
+List<DTexData> texdatas;          // Texture data
+List<? extends DTexInfo> texinfos; // Texture info (mapping)
+List<String> texnames;            // Texture names
+```
+
+</Expandable>
+
+<Expandable title="Displacements">
+
+```java
+List<? extends DDispInfo> dispinfos;    // Displacement info
+List<DDispVert> dispverts;              // Displacement vertices
+List<DDispTri> disptris;                // Displacement triangles
+List<? extends DDispMultiBlend> dispmultiblend; // Multiblend data
+```
+
+</Expandable>
+
+<Expandable title="Static Props">
+
+```java
+List<? extends DStaticProp> staticProps; // Static prop instances
+List<String> staticPropName;             // Static prop model names
+List<Number> staticPropLeaf;             // Static prop leaf associations
+```
+
+</Expandable>
+
+<Expandable title="Other Features">
+
+```java
+List<? extends DOverlay> overlays;       // Overlay decals
+List<DOverlayFade> overlayFades;         // Overlay fade distances
+List<DOverlaySystemLevel> overlaySysLevels; // Overlay system levels
+List<DCubemapSample> cubemaps;           // Cubemap samples
+List<? extends DOccluderData> occluderDatas; // Occluder data
+List<DOccluderPolyData> occluderPolyDatas;   // Occluder polygons
+List<Integer> occluderVerts;             // Occluder vertices
+List<? extends DAreaportal> areaportals; // Areaportals
+List<DPrimitive> prims;                  // Primitives
+List<Integer> primIndices;               // Primitive indices
+List<DVertex> primVerts;                 // Primitive vertices
+List<DVertex> clipPortalVerts;           // Clip portal vertices
+List<Entity> entities;                   // Entity definitions
+Set<LevelFlag> mapFlags;                 // Map compilation flags
+```
+
+</Expandable>
+
+## Core Structures
+
+### DPlane
+
+Represents a plane equation in 3D space.
+
+```java
+public class DPlane implements DStruct {
+    public Vector3f normal;  // Plane normal vector
+    public float dist;       // Distance from origin
+    public int type;         // Plane axis type
+}
+```
+
+**Size:** 20 bytes
+
+**Fields:**
+- `normal` - Unit normal vector perpendicular to the plane
+- `dist` - Distance from world origin along the normal
+- `type` - Axial plane type (0-5 for axis-aligned, 6 for arbitrary)
+
+### DVertex
+
+A 3D vertex position.
+
+```java
+public class DVertex implements DStruct {
+    public Vector3f point;  // 3D position
+}
+```
+
+**Size:** 12 bytes
+
+### DEdge
+
+Defines an edge between two vertices.
+
+```java
+public class DEdge implements DStruct {
+    public int[] v = new int[2];  // Vertex indices
+}
+```
+
+**Size:** 4 bytes
+
+**Fields:**
+- `v[0]` - First vertex index
+- `v[1]` - Second vertex index
+
+### DFace
+
+Defines a face (polygon) in the BSP geometry.
+
+```java
+public class DFace implements DStruct {
+    public static final int MAXLIGHTMAPS = 4;
+    
+    public int pnum;                // Plane number
+    public byte side;               // Side of plane (0 or 1)
+    public byte onnode;             // 1 if on node, 0 if in leaf
+    public int fstedge;             // First surfedge index
+    public int numedge;             // Number of surfedges
+    public int texinfo;             // Texture info index
+    public int dispInfo;            // Displacement info index (-1 if not a displacement)
+    public int surfaceFogVolumeID;  // Fog volume ID
+    public byte[] styles;           // Lightmap styles [MAXLIGHTMAPS]
+    public int lightofs;            // Offset into lightmap data
+    public float area;              // Face area in square units
+    public int[] lightmapTextureMinsInLuxels;  // [2] Lightmap mins
+    public int[] lightmapTextureSizeInLuxels;  // [2] Lightmap size
+    public int origFace;            // Original face index
+    public int numPrims;            // Number of primitives
+    public int firstPrimID;         // First primitive ID
+    public int smoothingGroups;     // Smoothing groups
+}
+```
+
+**Size:** 56 bytes
+
+<Expandable title="Field Details">
+
+- `pnum` - Index into the planes lump
+- `side` - Which side of the plane (0 = front, 1 = back)
+- `fstedge` - Index into surfedges lump
+- `numedge` - Number of consecutive surfedges forming this face
+- `texinfo` - Index into texinfo lump for texture mapping
+- `dispInfo` - Index into dispinfo lump, or -1 if not a displacement surface
+- `styles` - Up to 4 lightmap styles for dynamic lighting
+- `lightofs` - Byte offset into the lighting lump
+- `lightmapTextureMinsInLuxels` - Minimum lightmap coordinates
+- `lightmapTextureSizeInLuxels` - Lightmap dimensions in luxels
+
+</Expandable>
+
+## Brush Structures
+
+### DBrush
+
+Defines a convex brush volume.
+
+```java
+public class DBrush implements DStruct {
+    public int fstside;              // First brush side index
+    public int numside;              // Number of sides
+    public Set<BrushFlag> contents;  // Contents flags
+}
+```
+
+**Size:** 12 bytes
+
+<Expandable title="Helper Methods">
+
+```java
+boolean isSolid()        // CONTENTS_SOLID
+boolean isDetail()       // CONTENTS_DETAIL
+boolean isOpaque()       // CONTENTS_OPAQUE
+boolean isGrate()        // CONTENTS_GRATE
+boolean isLadder()       // CONTENTS_LADDER
+boolean isAreaportal()   // CONTENTS_AREAPORTAL
+boolean isPlayerClip()   // CONTENTS_PLAYERCLIP
+boolean isNpcClip()      // CONTENTS_MONSTERCLIP
+boolean isBlockLos()     // CONTENTS_BLOCKLOS
+boolean isTranslucent()  // CONTENTS_TRANSLUCENT
+boolean isWindow()       // CONTENTS_WINDOW
+boolean isCurrent180()   // CONTENTS_CURRENT_180
+boolean isCurrent90()    // CONTENTS_CURRENT_90
+```
+
+</Expandable>
+
+### BrushFlag
+
+Enumeration of brush contents flags.
+
+```java
+public enum BrushFlag {
+    CONTENTS_SOLID,           // Blocks player and NPC movement
+    CONTENTS_WINDOW,          // Transparent but blocks bullets
+    CONTENTS_GRATE,           // Grate (bullets pass through)
+    CONTENTS_SLIME,           // Slime volume
+    CONTENTS_WATER,           // Water volume
+    CONTENTS_BLOCKLOS,        // Blocks line of sight
+    CONTENTS_OPAQUE,          // Blocks visibility
+    CONTENTS_AREAPORTAL,      // Area portal brush
+    CONTENTS_PLAYERCLIP,      // Blocks only players
+    CONTENTS_MONSTERCLIP,     // Blocks only NPCs
+    CONTENTS_DETAIL,          // Detail brush (doesn't split BSP)
+    CONTENTS_TRANSLUCENT,     // Translucent brush
+    CONTENTS_LADDER,          // Ladder volume
+    CONTENTS_HITBOX,          // Hitbox brush
+    // ... and more
+}
+```
+
+## Model Structures
+
+### DModel
+
+Defines a brush model (world or entity-attached).
+
+```java
+public class DModel implements DStruct {
+    public Vector3f mins;     // Bounding box minimum
+    public Vector3f maxs;     // Bounding box maximum
+    public Vector3f origin;   // Model origin
+    public int headnode;      // BSP tree head node index
+    public int fstface;       // First face index
+    public int numface;       // Number of faces
+}
+```
+
+**Size:** 48 bytes
+
+**Fields:**
+- `mins` / `maxs` - Axis-aligned bounding box
+- `origin` - Origin point of the model
+- `headnode` - Root node of this model's BSP tree
+- `fstface` - Index of first face in the faces lump
+- `numface` - Number of consecutive faces belonging to this model
+
+## Texture Structures
+
+### DTexInfo
+
+Defines texture mapping for a face.
+
+```java
+public class DTexInfo implements DStruct {
+    public static final int TEXINFO_NODE = -1;
+    
+    public float[][] textureVecsTexels;   // [2][4] Texture UV mapping
+    public float[][] lightmapVecsLuxels;  // [2][4] Lightmap UV mapping
+    public Set<SurfaceFlag> flags;        // Surface flags
+    public int texdata;                   // Texture data index
+}
+```
+
+**Size:** 72 bytes
+
+<Expandable title="Texture Mapping">
+
+The texture vectors define how world coordinates map to texture coordinates:
+
+```
+u = dot(worldPos, textureVecsTexels[0]) + textureVecsTexels[0][3]
+v = dot(worldPos, textureVecsTexels[1]) + textureVecsTexels[1][3]
+```
+
+Similarly for lightmap coordinates using `lightmapVecsLuxels`.
+
+</Expandable>
+
+### SurfaceFlag
+
+Enumeration of surface flags.
+
+```java
+public enum SurfaceFlag {
+    SURF_LIGHT,      // Emits light (light value in texture)
+    SURF_SKY2D,      // 2D skybox
+    SURF_SKY,        // 3D skybox
+    SURF_WARP,       // Turbulent water warp
+    SURF_TRANS,      // Translucent surface
+    SURF_NOPORTAL,   // Cannot place portals on this surface
+    SURF_TRIGGER,    // Trigger surface
+    SURF_NODRAW,     // Don't draw this surface
+    SURF_HINT,       // BSP hint surface
+    SURF_SKIP,       // Skip surface (non-closed brushes)
+    SURF_NOLIGHT,    // Don't calculate lighting
+    SURF_BUMPLIGHT,  // Calculate bumpmapped lighting
+    SURF_NOSHADOWS,  // Don't receive shadows
+    SURF_NODECALS,   // Don't receive decals
+    SURF_NOCHOP,     // Don't subdivide patches
+    SURF_HITBOX      // Part of a hitbox
+}
+```
+
+## Displacement Structures
+
+### DDispInfo
+
+Defines a displacement surface (terrain).
+
+```java
+public class DDispInfo implements DStruct {
+    public static final int DISP_INFO_FLAG_HAS_MULTIBLEND = 0x40000000;
+    public static final int DISP_INFO_FLAG_MAGIC = 0x80000000;
+    
+    public Vector3f startPos;       // Starting position
+    public int dispVertStart;       // Index into disp verts
+    public int dispTriStart;        // Index into disp tris
+    public int power;               // Displacement power (2-4)
+    public int minTess;             // Minimum tesselation
+    public float smoothingAngle;    // Smoothing angle
+    public int contents;            // Surface contents
+    public int mapFace;             // Face index
+    public int lightmapAlphaStart;  // Lightmap alpha start
+    public int lightmapSamplePositionStart;
+    public int[] allowedVerts;      // [10] Allowed vertices
+}
+```
+
+**Size:** 176 bytes
+
+<Expandable title="Helper Methods">
+
+```java
+int getPowerSize()
+```
+Returns 2^power (e.g., power=3 returns 8).
+
+```java
+int getVertexCount()
+```
+Returns (getPowerSize() + 1)^2.
+
+```java
+int getTriangleTagCount()
+```
+Returns 2 * getPowerSize()^2.
+
+```java
+boolean hasMultiBlend()
+```
+Checks if this displacement uses multiblend.
+
+```java
+int getSurfaceFlags()
+```
+Extracts surface flags from minTess field.
+
+</Expandable>
+
+<Expandable title="Displacement Powers">
+
+| Power | Size | Vertices | Triangles |
+|-------|------|----------|----------|
+| 2 | 4x4 | 25 | 32 |
+| 3 | 8x8 | 81 | 128 |
+| 4 | 16x16 | 289 | 512 |
+
+</Expandable>
+
+## Overlay Structures
+
+### DOverlay
+
+Defines a decal overlay on world geometry.
+
+```java
+public class DOverlay implements DStruct {
+    public static final int OVERLAY_BSP_FACE_COUNT = 64;
+    
+    public int id;                  // Overlay ID
+    public int texinfo;             // Texture info index
+    public int faceCountAndRenderOrder;
+    public int[] ofaces;            // [64] Face indices
+    public float[] u;               // [2] U texture coords
+    public float[] v;               // [2] V texture coords
+    public Vector3f[] uvpoints;     // [4] UV points
+    public Vector3f origin;         // Overlay origin
+    public Vector3f basisNormal;    // Basis normal
+}
+```
+
+**Size:** 352 bytes
+
+<Expandable title="Helper Methods">
+
+```java
+int getFaceCount()
+```
+Returns the number of faces this overlay is applied to.
+
+```java
+int getRenderOrder()
+```
+Returns the render order (0-3) for overlapping overlays.
+
+</Expandable>
+
+## Example Usage
+
+### Reading Face Data
+
+```java
+BspData bspData = bspFile.getBspData();
+
+for (DFace face : bspData.faces) {
+    // Get the plane
+    DPlane plane = bspData.planes.get(face.pnum);
+    
+    // Get texture info
+    DTexInfo texInfo = bspData.texinfos.get(face.texinfo);
+    DTexData texData = bspData.texdatas.get(texInfo.texdata);
+    String textureName = bspData.texnames.get(texData.nameStringTableID);
+    
+    // Check if it's a displacement
+    if (face.dispInfo >= 0) {
+        DDispInfo disp = bspData.dispinfos.get(face.dispInfo);
+        int vertCount = disp.getVertexCount();
+        System.out.println("Displacement with " + vertCount + " vertices");
+    }
+    
+    // Check surface flags
+    if (texInfo.flags.contains(SurfaceFlag.SURF_NODRAW)) {
+        continue; // Skip nodraw surfaces
+    }
+}
+```
+
+### Working with Brushes
+
+```java
+for (DModel model : bspData.models) {
+    System.out.println("Model bounds: " + model.mins + " to " + model.maxs);
+    
+    // Iterate through model's faces
+    for (int i = 0; i < model.numface; i++) {
+        DFace face = bspData.faces.get(model.fstface + i);
+        // Process face...
+    }
+}
+
+for (DBrush brush : bspData.brushes) {
+    if (brush.isPlayerClip()) {
+        System.out.println("Found player clip brush");
+    }
+    
+    // Iterate through brush sides
+    for (int i = 0; i < brush.numside; i++) {
+        DBrushSide side = bspData.brushSides.get(brush.fstside + i);
+        // Process brush side...
+    }
+}
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Entities" icon="cube" href="/api/library/entities">
+    Entity classes and key-value handling
+  </Card>
+  <Card title="Lumps" icon="database" href="/api/library/lumps">
+    BSP lump types and data structures
+  </Card>
+</CardGroup>

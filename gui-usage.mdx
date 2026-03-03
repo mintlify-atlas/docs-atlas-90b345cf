@@ -1,0 +1,435 @@
+---
+title: GUI Usage
+description: Guide to using the BSPSource graphical user interface
+---
+
+## Overview
+
+BSPSource provides a graphical user interface (GUI) for users who prefer a visual workflow over the command line. The GUI exposes all the same options as the CLI in an easy-to-use interface.
+
+## Launching the GUI
+
+### Windows
+
+Double-click `bspsrc-gui.exe` or `bspsrc.jar`.
+
+Alternatively, run from the command line:
+
+```bash
+java -jar bspsrc.jar
+```
+
+### macOS / Linux
+
+Run the JAR file:
+
+```bash
+java -jar bspsrc.jar
+```
+
+Or make it executable and double-click:
+
+```bash
+chmod +x bspsrc.jar
+./bspsrc.jar
+```
+
+## Interface Overview
+
+The BSPSource GUI is organized into several sections:
+
+### File Selection
+
+The main panel displays a list where you can add BSP files to decompile.
+
+**Add Files**
+- Click **Add Files** to browse for individual `.bsp` files
+- Click **Add Folder** to add all BSP files from a directory
+- Use **Remove** to delete selected files from the list
+- Use **Clear** to remove all files from the list
+
+**Output Options**
+- **Default Output**: VMF files are created in the same directory as source BSP files
+- **Custom Output**: Specify a custom output directory for all decompiled VMF files
+
+### Configuration Tabs
+
+The configuration panel is organized into tabs, matching the CLI option groups:
+
+<Tabs>
+  <Tab title="Entity Options">
+    Control which entity types are written to the VMF file.
+    
+    **Entity Types**
+    - ✓ **Point Entities** - Write point entities (lights, spawns, etc.)
+    - ✓ **Brush Entities** - Write brush entities (doors, triggers, etc.)
+    - ✓ **Static Props** - Write prop_static entities
+    - ✓ **Overlays** - Write info_overlay entities
+    - ✓ **Cubemaps** - Write env_cubemap entities
+    - ✓ **Details** - Write func_detail entities
+    - ✓ **Areaportals** - Write func_areaportal entities
+    - ✓ **Occluders** - Write func_occluder entities
+    - ✓ **Ladders** - Write func_ladder entities
+    - ✓ **Vis Clusters** - Write func_viscluster entities
+    
+    **Advanced Entity Options**
+    - ✓ **Fix Entity Rotation** - Fix instance entity brush rotations for Hammer
+    - ☐ **Force Manual Areaportal Mapping** - Force manual entity mapping for areaportals
+    - ☐ **Merge Detail Brushes** - Merge touching func_detail brushes into one entity
+    
+    <Note>
+      Checkboxes marked with ✓ are enabled by default. Uncheck them to disable that entity type.
+    </Note>
+  </Tab>
+  
+  <Tab title="Brush Options">
+    Configure how world brushes and displacements are decompiled.
+    
+    **Geometry**
+    - ✓ **World Brushes** - Write world brush geometry
+    - ✓ **Displacements** - Write displacement surfaces
+    
+    **Brush Mode**
+    
+    Select the brush decompiling mode from the dropdown:
+    
+    - **BRUSHPLANES** (default) - Brushes and planes
+      - Most accurate reconstruction method
+      - Produces cleanest results
+      - Recommended for most maps
+    
+    - **ORIGFACE** - Original faces only
+      - Creates brushes from pre-split faces
+      - Use when BRUSHPLANES fails
+    
+    - **ORIGFACE_PLUS** - Original + split faces
+      - Creates brushes from both face types
+      - More geometry than ORIGFACE
+    
+    - **SPLITFACE** - Split faces only
+      - Creates brushes from post-VBSP faces
+      - Most complex geometry
+      - Matches engine geometry exactly
+    
+    **Backface Thickness**
+    
+    Set the thickness (in units) for brushes created from flat faces in face-based modes.
+    
+    - Default: `1.0`
+    - Range: `0.1` to `100.0`
+    
+    <Tip>
+      The default BRUSHPLANES mode works well for most maps. Only change it if you encounter issues.
+    </Tip>
+  </Tab>
+  
+  <Tab title="Texture Options">
+    Control texture handling during decompilation.
+    
+    **Texture Replacement**
+    
+    - **Face Texture**: Replace all face textures with this texture
+      - Leave empty to preserve original textures
+      - Example: `dev/dev_measuregeneric01`
+    
+    - **Backface Texture**: Replace all back-face textures (face-based modes only)
+      - Leave empty to use default
+      - Example: `tools/toolsnodraw`
+    
+    **Texture Fixes**
+    
+    - ✓ **Fix Cubemap Textures** - Correct environment-mapped materials
+    - ✓ **Fix Tool Textures** - Correct tool texture names (toolsnodraw, etc.)
+    
+    <Note>
+      Texture fixes are enabled by default and recommended to keep enabled for Hammer compatibility.
+    </Note>
+  </Tab>
+  
+  <Tab title="Other Options">
+    Miscellaneous decompilation settings.
+    
+    **Output**
+    
+    - ☐ **No VMF Output** - Read BSP only, don't write VMF files
+    - ✓ **Load Lump Files** - Load associated .lmp files
+    - ✓ **Write Visgroups** - Group instance entities into visgroups
+    - ✓ **Write Cameras** - Create cameras at player spawns
+    
+    **Game Detection**
+    
+    - **App ID**: Override automatic game detection
+      - Default: `0` (auto-detect)
+      - Click **List App IDs** to see all available games
+    
+    - **VMF Format**: Set output VMF format
+      - AUTO (default) - Automatically determine format
+      - OLD - Source 2004-2009 format
+      - NEW - Source 2010+ format
+    
+    **Performance**
+    
+    - ☐ **Skip Protection Check** - Skip decompile protection detection
+      - Faster when processing many unprotected maps
+      - May produce incorrect results on protected maps
+    
+    **Embedded Files**
+    
+    - ☐ **Unpack Embedded Files** - Extract embedded resources from BSP
+    - ✓ **Smart Unpack** - Skip engine-generated files when unpacking
+      - Only applies when "Unpack Embedded Files" is enabled
+    
+    <Tip>
+      Use "List App IDs" if auto-detection fails to identify the correct game.
+    </Tip>
+  </Tab>
+  
+  <Tab title="Advanced">
+    Advanced settings for debugging and special cases.
+    
+    **Debug Mode**
+    
+    - ☐ **Enable Debug Mode**
+      - Increases log verbosity
+      - Adds additional debug data to VMF files
+      - Useful for troubleshooting
+    
+    **Processing Options**
+    
+    - ☐ **Recursive** - Process subdirectories when adding folders
+    - ☐ **Use File Lists** - Treat input files as text lists of BSP paths
+    
+    <Warning>
+      Debug mode produces much larger VMF files and should only be used when troubleshooting issues.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Workflow
+
+### Basic Decompilation
+
+<Steps>
+  <Step title="Add BSP Files">
+    Click **Add Files** and select one or more `.bsp` files, or click **Add Folder** to add all BSP files from a directory.
+  </Step>
+  
+  <Step title="Configure Options (Optional)">
+    Adjust settings in the configuration tabs if needed. Default settings work well for most maps.
+  </Step>
+  
+  <Step title="Start Decompilation">
+    Click **Decompile** to begin processing.
+  </Step>
+  
+  <Step title="Monitor Progress">
+    The progress bar and status log show decompilation progress. Green messages indicate success, red messages indicate errors.
+  </Step>
+  
+  <Step title="Open VMF Files">
+    Once complete, VMF files are saved to the output location. Open them in Hammer Editor to view and edit.
+  </Step>
+</Steps>
+
+### Batch Decompilation
+
+Decompile multiple maps with the same settings:
+
+<Steps>
+  <Step title="Add Multiple Files">
+    Use **Add Files** to select multiple BSP files, or use **Add Folder** to add an entire directory.
+  </Step>
+  
+  <Step title="Set Output Directory">
+    Select **Custom Output** and choose a directory where all VMF files will be saved.
+  </Step>
+  
+  <Step title="Configure Settings">
+    Set your preferred options. These settings apply to all files in the list.
+  </Step>
+  
+  <Step title="Decompile All">
+    Click **Decompile** to process all files in the queue.
+  </Step>
+</Steps>
+
+### Selective Entity Decompilation
+
+Decompile only specific parts of a map:
+
+<Steps>
+  <Step title="Add BSP File">
+    Add the BSP file you want to decompile.
+  </Step>
+  
+  <Step title="Configure Entity Options">
+    Go to the **Entity Options** tab and uncheck entity types you don't want.
+    
+    For example, to decompile only world geometry:
+    - Uncheck **Point Entities**
+    - Uncheck **Brush Entities**
+    - Uncheck **Static Props**
+    - Keep **World Brushes** checked in the **Brush Options** tab
+  </Step>
+  
+  <Step title="Decompile">
+    Click **Decompile** to generate a VMF with only the selected elements.
+  </Step>
+</Steps>
+
+### Troubleshooting Failed Decompilation
+
+If a map fails to decompile or produces incorrect results:
+
+<Steps>
+  <Step title="Enable Debug Mode">
+    Go to the **Advanced** tab and enable **Debug Mode**.
+  </Step>
+  
+  <Step title="Try Different Brush Mode">
+    Go to the **Brush Options** tab and try a different brush mode:
+    - If BRUSHPLANES fails, try ORIGFACE
+    - If ORIGFACE fails, try SPLITFACE
+  </Step>
+  
+  <Step title="Check Game Detection">
+    Go to the **Other Options** tab and verify the App ID:
+    - Click **List App IDs** to see all games
+    - Set the correct App ID if auto-detection failed
+  </Step>
+  
+  <Step title="Review Logs">
+    Check the status log for error messages. Debug mode provides more detailed information.
+  </Step>
+</Steps>
+
+## Presets
+
+The GUI allows you to save and load configuration presets for different use cases.
+
+### Common Presets
+
+<AccordionGroup>
+  <Accordion title="Default - Full Decompilation">
+    All options enabled, BRUSHPLANES mode.
+    
+    Best for:
+    - Complete map decompilation
+    - Editing and studying maps
+    - Creating modified versions
+  </Accordion>
+  
+  <Accordion title="Geometry Only">
+    Only world brushes and displacements, no entities.
+    
+    Best for:
+    - Extracting map layout
+    - Creating simplified versions
+    - Performance testing
+    
+    **Settings:**
+    - Entity Options: All unchecked
+    - Brush Options: World Brushes ✓, Displacements ✓
+  </Accordion>
+  
+  <Accordion title="Debug Mode">
+    Full decompilation with debug information.
+    
+    Best for:
+    - Troubleshooting issues
+    - Understanding decompilation process
+    - Reporting bugs
+    
+    **Settings:**
+    - Advanced: Debug Mode ✓
+    - All other defaults
+  </Accordion>
+  
+  <Accordion title="Fast Processing">
+    Skip protection checks and optional features for speed.
+    
+    Best for:
+    - Batch processing many maps
+    - Processing known-unprotected maps
+    - Quick previews
+    
+    **Settings:**
+    - Other Options: Skip Protection Check ✓
+    - Other Options: Write Cameras ☐
+    - Other Options: Write Visgroups ☐
+  </Accordion>
+</AccordionGroup>
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+O` | Add Files |
+| `Ctrl+Shift+O` | Add Folder |
+| `Ctrl+D` | Decompile |
+| `Delete` | Remove Selected Files |
+| `Ctrl+A` | Select All Files |
+| `Ctrl+Q` | Quit |
+
+## Tips
+
+<Tip>
+  **Save Time with Defaults**: The default settings work well for most maps. Only adjust options when you need specific behavior.
+</Tip>
+
+<Tip>
+  **Use Custom Output**: When decompiling multiple maps, set a custom output directory to keep VMF files organized.
+</Tip>
+
+<Tip>
+  **Preview with Geometry Only**: To quickly preview a map's layout, disable all entities and decompile just the world geometry.
+</Tip>
+
+<Tip>
+  **Extract Resources**: Enable "Unpack Embedded Files" to extract custom textures, models, and sounds from the BSP.
+</Tip>
+
+## Limitations
+
+<Warning>
+  The GUI uses the same decompilation engine as the CLI. All limitations that apply to CLI decompilation also apply to the GUI.
+</Warning>
+
+- Some maps with heavy protection may not decompile correctly
+- Very large maps may take significant time to process
+- Complex custom entities may not be perfectly reconstructed
+- Not all Source engine games are supported (see [Supported Games](/supported-games))
+
+## Error Messages
+
+### Common Errors
+
+**"Failed to read BSP file"**
+- The file is corrupted or not a valid BSP file
+- Try opening the map in-game to verify it works
+
+**"Unknown game/app ID"**
+- Game detection failed
+- Manually set the correct App ID in Other Options
+
+**"Protected map detected"**
+- The map has decompile protection
+- Results may be incomplete or incorrect
+- Try enabling "Skip Protection Check" (may not help)
+
+**"Out of memory"**
+- The map is too large for available memory
+- Increase Java heap size: `java -Xmx4G -jar bspsrc.jar`
+- Try disabling some entity types to reduce memory usage
+
+## Next Steps
+
+After decompiling a map:
+
+1. Open the VMF file in Hammer Editor
+2. Check for any errors or warnings
+3. If using a face-based brush mode, you may need to clean up geometry
+4. Save the VMF and compile it to test functionality
+5. Make your edits and modifications
+
+For more information on configuration options, see [Configuration](/configuration).

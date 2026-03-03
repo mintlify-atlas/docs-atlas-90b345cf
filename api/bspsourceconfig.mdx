@@ -1,0 +1,305 @@
+---
+title: BspSourceConfig
+description: Configuration class for BSPSource decompilation options
+---
+
+## Overview
+
+The `BspSourceConfig` class provides comprehensive configuration options for controlling the BSPSource decompilation process. All configuration fields are public and can be modified directly.
+
+**Package:** `info.ata4.bspsrc.decompiler`
+
+**Source:** [BspSourceConfig.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSourceConfig.java:27)
+
+## Constructors
+
+### BspSourceConfig
+
+```java
+public BspSourceConfig()
+```
+
+Creates a new configuration with default values.
+
+**Source:** [BspSourceConfig.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSourceConfig.java:78)
+
+```java
+public BspSourceConfig(BspSourceConfig config)
+```
+
+Copy constructor that creates a new configuration from an existing one.
+
+<ParamField path="config" type="BspSourceConfig" required>
+  The configuration to copy from.
+</ParamField>
+
+**Source:** [BspSourceConfig.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSourceConfig.java:83)
+
+## Public Fields
+
+### General Options
+
+<ParamField path="defaultAppId" type="int" default="SourceAppId.UNKNOWN">
+  The default Source engine application ID to use when auto-detection fails.
+</ParamField>
+
+<ParamField path="brushMode" type="BrushMode" default="BrushMode.BRUSHPLANES">
+  The brush decompilation mode (BRUSHPLANES, ORIGFACES, ORIGFACES_PLUS, SPLITFACES).
+</ParamField>
+
+<ParamField path="sourceFormat" type="SourceFormat" default="SourceFormat.AUTO">
+  The output VMF format version (AUTO, NEW, OLD).
+</ParamField>
+
+<ParamField path="debug" type="boolean" default="false">
+  Enable debug mode with verbose logging and config dump.
+</ParamField>
+
+### Entity Options
+
+<ParamField path="writeAreaportals" type="boolean" default="true">
+  Include areaportal entities in the output.
+</ParamField>
+
+<ParamField path="writeBrushEntities" type="boolean" default="true">
+  Include brush-based entities (func_detail, func_door, etc.).
+</ParamField>
+
+<ParamField path="writeCubemaps" type="boolean" default="true">
+  Include env_cubemap entities.
+</ParamField>
+
+<ParamField path="writeDetails" type="boolean" default="true">
+  Include func_detail entities.
+</ParamField>
+
+<ParamField path="writeOccluders" type="boolean" default="true">
+  Include func_occluder entities.
+</ParamField>
+
+<ParamField path="writeOverlays" type="boolean" default="true">
+  Include info_overlay entities.
+</ParamField>
+
+<ParamField path="writePointEntities" type="boolean" default="true">
+  Include point entities (lights, spawns, etc.).
+</ParamField>
+
+<ParamField path="writeStaticProps" type="boolean" default="true">
+  Include prop_static entities.
+</ParamField>
+
+<ParamField path="writeLadders" type="boolean" default="true">
+  Include func_ladder entities.
+</ParamField>
+
+<ParamField path="writeVisClusters" type="boolean" default="true">
+  Include func_viscluster entities.
+</ParamField>
+
+<ParamField path="fixEntityRot" type="boolean" default="true">
+  Fix entity rotation angles to proper VMF format.
+</ParamField>
+
+<ParamField path="apForceManualMapping" type="boolean" default="false">
+  Force manual areaportal mapping instead of automatic detection.
+</ParamField>
+
+<ParamField path="detailMerge" type="boolean" default="false">
+  Merge adjacent detail brushes with similar properties.
+</ParamField>
+
+<ParamField path="detailMergeThresh" type="float" default="1">
+  Distance threshold for detail brush merging.
+</ParamField>
+
+<ParamField path="maxCubemapSides" type="int" default="8">
+  Maximum number of brush sides to assign to a single cubemap.
+</ParamField>
+
+<ParamField path="maxOverlaySides" type="int" default="64">
+  Maximum number of brush sides to assign to a single overlay.
+</ParamField>
+
+### Brush Options
+
+<ParamField path="writeWorldBrushes" type="boolean" default="true">
+  Include world brushes (structural geometry).
+</ParamField>
+
+<ParamField path="writeDisp" type="boolean" default="true">
+  Include displacement surfaces.
+</ParamField>
+
+<ParamField path="backfaceDepth" type="float" default="1">
+  Depth in units for generated backfaces on brush planes.
+</ParamField>
+
+### Texture Options
+
+<ParamField path="backfaceTexture" type="String" default='""'>
+  Custom texture to apply to generated backfaces (empty = use TOOLS/TOOLSNODRAW).
+</ParamField>
+
+<ParamField path="faceTexture" type="String" default='""'>
+  Custom texture to apply to all faces (empty = use original textures).
+</ParamField>
+
+<ParamField path="fixCubemapTextures" type="boolean" default="true">
+  Fix cubemap texture references to remove runtime-generated suffixes.
+</ParamField>
+
+<ParamField path="fixToolTextures" type="boolean" default="true">
+  Fix tool texture paths (e.g., convert lowercase to uppercase).
+</ParamField>
+
+### Miscellaneous Options
+
+<ParamField path="nullOutput" type="boolean" default="false">
+  Disable VMF output (useful for benchmarking or testing).
+</ParamField>
+
+<ParamField path="loadLumpFiles" type="boolean" default="true">
+  Load external lump files (.lmp) if present.
+</ParamField>
+
+<ParamField path="skipProt" type="boolean" default="false">
+  Skip protection check (allows decompiling protected maps).
+</ParamField>
+
+<ParamField path="writeVisgroups" type="boolean" default="true">
+  Create visgroups in the VMF for organizing entities.
+</ParamField>
+
+<ParamField path="writeCameras" type="boolean" default="true">
+  Include camera entities in the output.
+</ParamField>
+
+<ParamField path="unpackEmbedded" type="boolean" default="false">
+  Extract embedded files from the pakfile lump.
+</ParamField>
+
+<ParamField path="smartUnpack" type="boolean" default="true">
+  Skip VBSP-generated files and patched materials when unpacking.
+</ParamField>
+
+<ParamField path="vmfDoubleScale" type="int" default="8">
+  Scale factor for VMF coordinate precision.
+</ParamField>
+
+<ParamField path="vmfDoubleScaleTextureAxes" type="int" default="4">
+  Scale factor for texture axis precision.
+</ParamField>
+
+<ParamField path="vmfDoubleScaleTextureScale" type="int" default="4">
+  Scale factor for texture scale precision.
+</ParamField>
+
+## Public Methods
+
+### dumpToLog
+
+```java
+public void dumpToLog()
+```
+
+Dumps all configuration values to the default logger for debugging.
+
+**Source:** [BspSourceConfig.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSourceConfig.java:128)
+
+```java
+public void dumpToLog(Logger logger)
+```
+
+Dumps all configuration values to the specified logger.
+
+<ParamField path="logger" type="Logger" required>
+  The logger to write configuration values to.
+</ParamField>
+
+**Source:** [BspSourceConfig.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSourceConfig.java:132)
+
+### isWriteEntities
+
+```java
+public boolean isWriteEntities()
+```
+
+Returns true if any entity writing is enabled.
+
+**Returns:** True if writeBrushEntities or writePointEntities is enabled
+
+**Source:** [BspSourceConfig.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSourceConfig.java:149)
+
+### setWriteEntities
+
+```java
+public void setWriteEntities(boolean writeEntities)
+```
+
+Sets both brush and point entity writing flags.
+
+<ParamField path="writeEntities" type="boolean" required>
+  Value to set for both writeBrushEntities and writePointEntities.
+</ParamField>
+
+**Source:** [BspSourceConfig.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSourceConfig.java:153)
+
+## Usage Example
+
+```java
+import info.ata4.bspsrc.decompiler.BspSourceConfig;
+import info.ata4.bspsrc.decompiler.modules.geom.BrushMode;
+import info.ata4.bspsrc.lib.app.SourceAppId;
+
+// Create default configuration
+BspSourceConfig config = new BspSourceConfig();
+
+// Configure general options
+config.defaultAppId = SourceAppId.HALF_LIFE_2;
+config.brushMode = BrushMode.ORIGFACES;
+config.debug = false;
+
+// Configure entity options
+config.writeWorldBrushes = true;
+config.writeBrushEntities = true;
+config.writePointEntities = true;
+config.writeStaticProps = true;
+config.writeDisp = true;
+config.writeOverlays = true;
+config.writeCubemaps = true;
+
+// Configure texture options
+config.fixCubemapTextures = true;
+config.fixToolTextures = true;
+config.backfaceTexture = "tools/toolsnodraw";
+
+// Configure detail merging
+config.detailMerge = true;
+config.detailMergeThresh = 2.0f;
+
+// Configure embedded file extraction
+config.unpackEmbedded = true;
+config.smartUnpack = true;
+
+// Load external lump files
+config.loadLumpFiles = true;
+
+// Dump configuration in debug mode
+if (config.debug) {
+    config.dumpToLog();
+}
+
+// Create a copy of the configuration
+BspSourceConfig configCopy = new BspSourceConfig(config);
+configCopy.debug = true; // Modify copy without affecting original
+
+// Quick entity toggle
+config.setWriteEntities(false); // Disables both brush and point entities
+```
+
+## See Also
+
+- [BspSource](/api/bspsource) - Main decompiler class that uses this configuration
+- [BspFile](/api/bspfile) - BSP file handling
+- [BspFileReader](/api/bspfilereader) - Reading BSP data structures

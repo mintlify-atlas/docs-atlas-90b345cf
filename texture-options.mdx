@@ -1,0 +1,233 @@
+---
+title: Texture Options
+description: Texture fixing and replacement options for decompiled maps
+icon: image
+---
+
+BSPSource includes sophisticated texture processing to fix environment-mapped textures, cubemap patches, and tool texture names that get modified during BSP compilation.
+
+## Texture Name Fixing
+
+During BSP compilation, VBSP modifies texture names for cubemaps, water depth, and vertex blending. BSPSource can reverse these changes:
+
+```java
+config.fixCubemapTextures = true; // Enable cubemap texture fixing
+```
+
+### Automatic Texture Processing
+
+BSPSource automatically processes these texture patterns:
+
+**Cubemap patches:**
+```
+maps/mapname/texture_-64_128_256 → texture
+```
+
+**Water depth patches:**
+```
+maps/mapname/water_depth_-256 → water
+```
+
+**World vertex transition patches:**
+```
+maps/mapname/blend_wvt_patch → blend
+```
+
+### Configuration
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+
+// Enable texture name fixing (cubemaps, water, wvt patches)
+config.fixCubemapTextures = true;
+
+// Enable tool texture fixing
+config.fixToolTextures = true;
+```
+
+## Tool Texture Fixing
+
+VBSP optimizes invisible brush sides by reassigning their textures. BSPSource can reconstruct the original tool texture names using surface properties and content flags.
+
+### How Tool Texture Fixing Works
+
+1. **Surface Property Preservation**: VBSP only reassigns textures with matching surface properties
+2. **Flag Matching**: BSPSource uses surf/content flags to identify original tool textures
+3. **Best Guess Selection**: When multiple matches exist, the tool texture with the most matching requirements is selected
+
+### Supported Tool Textures
+
+BSPSource recognizes game-specific tool textures:
+
+**Standard Source Engine:**
+- `tools/toolsblack`
+- `tools/toolsblock_los`
+- `tools/toolsblockbullets`
+- `tools/toolsblocklight`
+- `tools/toolsclip`
+- `tools/toolshint`
+- `tools/toolsinvisible`
+- `tools/toolsnodraw`
+- `tools/toolsoccluder`
+- `tools/toolsplayerclip`
+- `tools/toolsskip`
+- `tools/toolsskybox`
+- `tools/toolstrigger`
+
+**CS:GO Material-specific clips:**
+- `tools/toolsclip_metal`
+- `tools/toolsclip_wood`
+- `tools/toolsclip_glass`
+- etc.
+
+**Left 4 Dead 2:**
+- `tools/toolsareaportal`
+- `tools/toolsfog`
+
+**Counter-Strike: Source:**
+- `tools/toolsbuyzone`
+- `tools/toolsbombzone`
+
+<Note>
+  Tool texture definitions are automatically selected based on the game/AppID detected in the BSP file.
+</Note>
+
+## Texture Replacement
+
+You can override textures during decompilation:
+
+### Backface Texture Override
+
+```java
+config.backfaceTexture = "tools/toolsnodraw";
+config.backfaceDepth = 1; // Depth in units
+```
+
+Backface textures are used for the invisible back sides of brushes.
+
+### Face Texture Override
+
+```java
+config.faceTexture = "dev/dev_measurewall01";
+```
+
+Replaces all visible face textures with the specified texture (useful for debugging geometry).
+
+## Texture Canonization
+
+All texture names are automatically canonized:
+
+1. **Lowercase conversion**: `TEXTURE` → `texture`
+2. **Separator normalization**: `textures\wall` → `textures/wall`
+
+```java
+String fixed = TextureSource.canonizeTextureName("TEXTURES\\WALL");
+// Result: "textures/wall"
+```
+
+## Cubemap Side Assignment
+
+BSPSource tracks which brush sides use environment maps and assigns them to `env_cubemap` entities:
+
+```vmf
+entity
+{
+    "id" "123"
+    "classname" "env_cubemap"
+    "origin" "-64 128 256"
+    "cubemapsize" "128"
+    "sides" "45 67 89 102"
+}
+```
+
+```java
+config.maxCubemapSides = 8; // Maximum sides per cubemap
+```
+
+<Warning>
+  If a cubemap has too many sides (> `maxCubemapSides`), the sides property is omitted to prevent performance issues.
+</Warning>
+
+## Texture Info Optimization Detection
+
+BSPSource can detect when VBSP has excessively optimized texinfo data (a protection technique):
+
+- Monitors ratio of `nodraw` brush sides
+- Warns when ratio exceeds 90%
+- See [Protection Detection](/protection-detection) for details
+
+## Advanced Texture Options
+
+### VMF Precision Scaling
+
+Texture coordinates use configurable precision scaling:
+
+```java
+config.vmfDoubleScale = 8; // General coordinate scaling
+config.vmfDoubleScaleTextureAxes = 4; // Texture axis scaling
+config.vmfDoubleScaleTextureScale = 4; // Texture scale scaling
+```
+
+<Note>
+  These options control decimal precision in the VMF output to match Hammer's internal format.
+</Note>
+
+## Patched Material Detection
+
+You can check if a texture name has been patched by VBSP:
+
+```java
+boolean isPatched = TextureSource.isPatchedMaterial("maps/dm_test/wall_-64_128_256");
+// Returns: true
+```
+
+This is useful for:
+- Validating texture fixing
+- Identifying embedded materials
+- Detecting modified textures
+
+## Texture Fixing Example
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+
+// Enable all texture fixing
+config.fixCubemapTextures = true;
+config.fixToolTextures = true;
+
+// Override backfaces with nodraw
+config.backfaceTexture = "tools/toolsnodraw";
+config.backfaceDepth = 1;
+
+// Keep original face textures (don't override)
+config.faceTexture = "";
+
+// Reasonable cubemap limits
+config.maxCubemapSides = 8;
+```
+
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Wrong tool textures after decompilation">
+    Enable `fixToolTextures` to reconstruct original tool texture names from surface properties and flags.
+  </Accordion>
+
+  <Accordion title="Cubemap textures still have coordinates">
+    Ensure `fixCubemapTextures` is enabled. Some protected maps may have encrypted texture data that cannot be fixed.
+  </Accordion>
+
+  <Accordion title="All textures show as tools/toolsnodraw">
+    This indicates the map uses the IID nodraw texture hack (90%+ nodraw brush sides). See [Protection Detection](/protection-detection).
+  </Accordion>
+
+  <Accordion title="Texture names are uppercase">
+    BSPSource automatically converts all texture names to lowercase. This is normal VMF behavior.
+  </Accordion>
+</AccordionGroup>
+
+## Related Topics
+
+- [Decompilation Modes](/decompilation-modes) - How brush modes affect texture reconstruction
+- [Embedded Files](/embedded-files) - Extracting embedded materials from the pakfile
+- [Protection Detection](/protection-detection) - Detecting texture-based protection methods

@@ -1,0 +1,246 @@
+---
+title: BrushSource
+description: Module for rebuilding brushes from BSP brush and brush side lumps
+---
+
+## Overview
+
+The `BrushSource` class is a decompiling module responsible for rebuilding solid brushes from the `LUMP_BRUSHES` and `LUMP_BRUSHSIDES` lumps in BSP files. It processes brush geometry and writes them to VMF format, handling various brush types including world brushes, detail brushes, and entity-associated brushes.
+
+This module is based on Vmex's `vmfbrushes()` and `writebrush()` methods.
+
+**Package:** `info.ata4.bspsrc.decompiler.modules.geom`
+
+## Constructor
+
+```java
+public BrushSource(
+    BspFileReader reader,
+    VmfWriter writer,
+    BspSourceConfig config,
+    TextureSource texsrc,
+    BspProtection bspprot,
+    VmfMeta vmfmeta,
+    BrushSideFaceMapper brushSideFaceMapper,
+    WindingFactory windingFactory,
+    OccluderMapper.ReallocationData occReallocationData
+)
+```
+
+<ParamField path="reader" type="BspFileReader" required>
+  BSP file reader for accessing BSP data
+</ParamField>
+
+<ParamField path="writer" type="VmfWriter" required>
+  VMF writer for outputting brush data
+</ParamField>
+
+<ParamField path="config" type="BspSourceConfig" required>
+  Configuration settings for decompilation
+</ParamField>
+
+<ParamField path="texsrc" type="TextureSource" required>
+  Texture source module for material handling
+</ParamField>
+
+<ParamField path="bspprot" type="BspProtection" required>
+  BSP protection handler for detecting protected brushes
+</ParamField>
+
+<ParamField path="vmfmeta" type="VmfMeta" required>
+  VMF metadata handler for UIDs and visgroups
+</ParamField>
+
+<ParamField path="brushSideFaceMapper" type="BrushSideFaceMapper" required>
+  Mapper for brush side to face relationships
+</ParamField>
+
+<ParamField path="windingFactory" type="WindingFactory" required>
+  Factory for creating winding geometry from brush sides
+</ParamField>
+
+<ParamField path="occReallocationData" type="OccluderMapper.ReallocationData" required>
+  Occluder reallocation data
+</ParamField>
+
+## Public Methods
+
+### writeBrushes
+
+```java
+public void writeBrushes()
+```
+
+Writes all world brushes to the VMF file. Depending on configuration settings, some brushes may be skipped so entity decompiler modules can process them instead.
+
+**Skips:**
+- Detail brushes if `config.writeDetails` is enabled
+- Areaportals if `config.writeAreaportals` is enabled  
+- Ladders if `config.writeLadders` is enabled (for games using object-based ladders)
+
+### writeBrush
+
+```java
+public boolean writeBrush(int ibrush)
+public boolean writeBrush(int ibrush, Vector3d origin, Vector3d angles)
+```
+
+Writes a single brush to the VMF file.
+
+<ParamField path="ibrush" type="int" required>
+  Brush index in the BSP brush lump
+</ParamField>
+
+<ParamField path="origin" type="Vector3d">
+  Origin offset to apply to brush geometry (for entity brushes)
+</ParamField>
+
+<ParamField path="angles" type="Vector3d">
+  Rotation angles to apply to brush geometry (for entity brushes)
+</ParamField>
+
+**Returns:** `true` if the brush was successfully written, `false` if skipped
+
+**Behavior:**
+- Validates all brush sides before writing
+- Skips invalid brush sides (bevels, degenerate geometry, huge brushes)
+- Requires at least 3 valid sides to write a brush
+- Maps brush indices to VMF IDs for reference by other modules
+
+### writeModel
+
+```java
+public boolean writeModel(int imodel)
+public boolean writeModel(int imodel, Vector3d origin, Vector3d angles)
+```
+
+Writes all brushes associated with a BSP model.
+
+<ParamField path="imodel" type="int" required>
+  Model index in the BSP model lump
+</ParamField>
+
+<ParamField path="origin" type="Vector3d">
+  Origin offset for the model's brushes
+</ParamField>
+
+<ParamField path="angles" type="Vector3d">
+  Rotation angles for the model's brushes
+</ParamField>
+
+**Returns:** `true` if successful, `false` if model index is invalid
+
+### isFuncDetail
+
+```java
+public boolean isFuncDetail(DBrush dBrush)
+```
+
+Determines if a brush was originally a `func_detail` entity.
+
+<ParamField path="dBrush" type="DBrush" required>
+  Brush to check
+</ParamField>
+
+**Returns:** `true` if the brush was a func_detail
+
+### getBrushSideIDForIndex
+
+```java
+public int getBrushSideIDForIndex(int ibrushside)
+```
+
+Returns the VMF brush side ID for a given brush side index. The brush side must have been previously written via `writeSide`.
+
+<ParamField path="ibrushside" type="int" required>
+  Brush side index
+</ParamField>
+
+**Returns:** Brush side VMF ID, or `-1` if not found
+
+### getBrushIDForIndex
+
+```java
+public int getBrushIDForIndex(int ibrush)
+```
+
+Returns the VMF brush ID for a given brush index. The brush must have been previously written.
+
+<ParamField path="ibrush" type="int" required>
+  Brush index
+</ParamField>
+
+**Returns:** Brush VMF ID, or `-1` if not found
+
+### getWorldbrushes
+
+```java
+public int getWorldbrushes()
+```
+
+**Returns:** The number of world brushes found by walking the BSP tree
+
+## Configuration Options
+
+This module respects the following configuration options from `BspSourceConfig`:
+
+- **writeDetails** - Skip detail brushes during world brush writing
+- **writeAreaportals** - Skip areaportal brushes during world brush writing
+- **writeLadders** - Skip ladder brushes during world brush writing (game-dependent)
+- **faceTexture** - Override texture string for all brush sides
+- **debug** - Write debugging metadata to VMF output
+
+## Usage Example
+
+```java
+// Initialize dependencies
+BspFileReader reader = new BspFileReader(bspFile);
+VmfWriter writer = new VmfWriter(outputFile);
+BspSourceConfig config = new BspSourceConfig();
+
+// Create BrushSource module
+BrushSource brushSource = new BrushSource(
+    reader, writer, config, texsrc, bspprot, vmfmeta,
+    brushSideFaceMapper, windingFactory, occReallocationData
+);
+
+// Write all world brushes
+brushSource.writeBrushes();
+
+// Write a specific entity brush with rotation
+Vector3d origin = new Vector3d(128, 256, 0);
+Vector3d angles = new Vector3d(0, 45, 0);
+brushSource.writeBrush(42, origin, angles);
+
+// Get VMF ID for a brush
+int brushId = brushSource.getBrushIDForIndex(42);
+```
+
+## Implementation Details
+
+### BSP Tree Walking
+
+The module walks the BSP tree starting from model headnodes to:
+- Associate brushes with their corresponding entities
+- Find the index of the last worldbrush
+- Calculate brush ranges for each model
+- Recover null-faced brushes
+
+### Brush Side Validation
+
+Before writing, each brush side is validated to ensure:
+- It's not a bevel face (which causes bad brushes)
+- It has at least 3 vertices
+- The winding is not empty or degenerate
+- The size is not excessively large (within map bounds)
+- The plane has valid, unique points
+
+### Texture Fixing
+
+The module uses `TextureBuilder` to reconstruct texture alignment for brush sides. It enables texture fixing for brush sides that may have compacted texture info (those without corresponding original faces).
+
+## Related Modules
+
+- [FaceSource](/api/modules/face-source) - Alternative brush writing using face lumps
+- [EntitySource](/api/modules/entity-source) - Entity decompilation that uses BrushSource
+- TextureSource - Texture handling for brush sides

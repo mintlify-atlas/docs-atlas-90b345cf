@@ -1,0 +1,389 @@
+---
+title: Lump Types
+description: Lump types and data structures for BSP file organization
+---
+
+Lumps are the fundamental data containers in BSP files, organizing different types of map data into discrete sections.
+
+## Lump
+
+Default lump type for lumps inside a BSP file.
+
+### Constructor
+
+```java
+Lump(int index, LumpType type)
+Lump(LumpType type)
+```
+
+Creates a new lump with the specified index and type. The second constructor uses the type's default index.
+
+**Parameters:**
+- `index` - Position in the lump table
+- `type` - The lump type enum value
+
+### Methods
+
+<Expandable title="Core Properties">
+
+#### getName
+```java
+String getName()
+```
+Returns the name of the lump type (e.g., "LUMP_ENTITIES").
+
+#### getIndex
+```java
+int getIndex()
+```
+Returns the position of this lump in the BSP file's lump table.
+
+#### getType
+```java
+LumpType getType()
+```
+Returns the lump type enumeration.
+
+#### getParentFile
+```java
+Path getParentFile()
+```
+Returns the path to the parent BSP file.
+
+#### setParentFile
+```java
+void setParentFile(Path parentFile)
+```
+Sets the parent BSP file path.
+
+</Expandable>
+
+<Expandable title="Data Access">
+
+#### getLength
+```java
+int getLength()
+```
+Returns the number of bytes in this lump. If compressed, returns the uncompressed size.
+
+#### getBuffer
+```java
+ByteBuffer getBuffer()
+```
+Returns a view of the buffer for this lump. Changes to it are reflected in the lump's buffer.
+
+#### setBuffer
+```java
+void setBuffer(ByteBuffer buf)
+```
+Sets the lump data from a ByteBuffer.
+
+#### getInputStream
+```java
+InputStream getInputStream()
+```
+Returns an InputStream for reading lump data.
+
+#### getOutputStream
+```java
+OutputStream getOutputStream()
+```
+Returns an OutputStream for writing lump data.
+
+</Expandable>
+
+<Expandable title="Compression">
+
+#### isCompressed
+```java
+boolean isCompressed()
+```
+Checks if the lump data is LZMA compressed.
+
+#### setCompressed
+```java
+void setCompressed(boolean compressed)
+```
+Marks the lump as compressed or uncompressed and updates the FourCC accordingly.
+
+#### compress
+```java
+void compress()
+```
+Compresses the lump data using LZMA compression.
+
+#### uncompress
+```java
+void uncompress()
+```
+Decompresses the lump data.
+
+</Expandable>
+
+<Expandable title="Versioning">
+
+#### getVersion
+```java
+int getVersion()
+```
+Returns the lump version number.
+
+#### setVersion
+```java
+void setVersion(int vers)
+```
+Sets the lump version.
+
+#### getFourCC
+```java
+int getFourCC()
+```
+Returns the FourCC identifier (used for compressed lumps).
+
+#### setFourCC
+```java
+void setFourCC(int fourCC)
+```
+Sets the FourCC identifier.
+
+</Expandable>
+
+## LumpType
+
+Enumeration of all lump types used in BSP files across different versions.
+
+### Common Lump Types
+
+<Expandable title="Essential Lumps">
+
+| Type | Index | Description |
+|------|-------|-------------|
+| `LUMP_ENTITIES` | 0 | Entity definitions |
+| `LUMP_PLANES` | 1 | Plane equations |
+| `LUMP_TEXDATA` | 2 | Texture data |
+| `LUMP_VERTEXES` | 3 | Vertex positions |
+| `LUMP_VISIBILITY` | 4 | Visibility data |
+| `LUMP_NODES` | 5 | BSP tree nodes |
+| `LUMP_TEXINFO` | 6 | Texture information |
+| `LUMP_FACES` | 7 | Face definitions |
+| `LUMP_LIGHTING` | 8 | Lightmap data |
+| `LUMP_LEAFS` | 10 | BSP tree leaves |
+| `LUMP_EDGES` | 12 | Edge definitions |
+| `LUMP_SURFEDGES` | 13 | Surface edge references |
+| `LUMP_MODELS` | 14 | Brush models |
+
+</Expandable>
+
+<Expandable title="Advanced Features">
+
+| Type | Index | Description |
+|------|-------|-------------|
+| `LUMP_DISPINFO` | 26 | Displacement surface info |
+| `LUMP_DISP_VERTS` | 33 | Displacement vertices |
+| `LUMP_GAME_LUMP` | 35 | Game-specific lumps |
+| `LUMP_PAKFILE` | 40 | Embedded PAK file |
+| `LUMP_CUBEMAPS` | 42 | Cubemap samples |
+| `LUMP_OVERLAYS` | 45 | Overlay decals |
+| `LUMP_BRUSHES` | 18 | Brush definitions |
+| `LUMP_BRUSHSIDES` | 19 | Brush side definitions |
+
+</Expandable>
+
+<Expandable title="BSP v20+ Lumps">
+
+These lumps are specific to BSP version 20 and above:
+
+| Type | Index | Version | Description |
+|------|-------|---------|-------------|
+| `LUMP_LIGHTING_HDR` | 53 | 20 | HDR lightmap data |
+| `LUMP_FACES_HDR` | 58 | 20 | HDR face data |
+| `LUMP_MAP_FLAGS` | 59 | 20 | Map compilation flags |
+| `LUMP_OVERLAY_FADES` | 60 | 20 | Overlay fade distances |
+| `LUMP_PHYSLEVEL` | 62 | 21 | Physics level data |
+| `LUMP_DISP_MULTIBLEND` | 63 | 21 | Displacement multiblend |
+
+</Expandable>
+
+### Static Methods
+
+#### get (by name)
+```java
+static LumpType get(String name, int bspVersion)
+static LumpType get(String name)
+```
+
+Returns the lump type for a given name in a specific BSP version. The version-less variant defaults to BSP v19.
+
+**Parameters:**
+- `name` - Lump name (e.g., "LUMP_ENTITIES")
+- `bspVersion` - BSP version to consider for version-specific lumps
+
+**Returns:**
+- The matching `LumpType`, or `LUMP_UNKNOWN` if not found
+
+#### get (by index)
+```java
+static LumpType get(int index, int bspVersion)
+static LumpType get(int index)
+```
+
+Returns the lump type for a given index in a specific BSP version.
+
+**Parameters:**
+- `index` - Lump table index (0-63)
+- `bspVersion` - BSP version to consider
+
+**Returns:**
+- The matching `LumpType`, or `LUMP_UNKNOWN` if not found
+
+### Instance Methods
+
+#### getIndex
+```java
+int getIndex()
+```
+Returns the position of this lump type in the lump table.
+
+#### getBspVersion
+```java
+int getBspVersion()
+```
+Returns the first BSP version where this lump type was introduced, or -1 if unknown.
+
+### Example Usage
+
+```java
+// Get lump type by index
+LumpType type = LumpType.get(0); // LUMP_ENTITIES
+
+// Get lump type by name for specific version
+LumpType hdrType = LumpType.get("LUMP_LIGHTING_HDR", 20);
+
+// Check version
+if (type.getBspVersion() <= bspFile.getVersion()) {
+    // This lump type is supported
+}
+```
+
+## GameLump
+
+Special lump type for game-specific lumps stored inside `LUMP_GAME_LUMP`.
+
+### Methods
+
+#### getName
+```java
+String getName()
+```
+Returns the name decoded from the FourCC identifier (e.g., "sprp" for static props).
+
+#### getFlags
+```java
+int getFlags()
+```
+Returns the game lump flags.
+
+#### setFlags
+```java
+void setFlags(int flags)
+```
+Sets the game lump flags.
+
+#### setCompressed
+```java
+void setCompressed(boolean compressed)
+```
+Marks the game lump as compressed and sets flags to 1 if compressed, 0 otherwise.
+
+### Common Game Lumps
+
+| FourCC | Name | Description |
+|--------|------|-------------|
+| `sprp` | Static Props | Static prop placement |
+| `prps` | Prop Names | Static prop model names |
+| `prpl` | Prop Leaves | Static prop leaf associations |
+
+## LumpFile
+
+Utility for loading and saving individual lumps from `.lmp` files.
+
+### Constructor
+
+```java
+LumpFile(BspFile bsp)
+LumpFile(int bspVersion)
+```
+
+**Parameters:**
+- `bsp` - Parent BSP file
+- `bspVersion` - BSP version for standalone usage
+
+### Methods
+
+#### load
+```java
+void load(Path file, ByteOrder bo) throws IOException
+void load(Path file) throws IOException
+```
+
+Loads a lump from an external `.lmp` file. The version-less variant uses little-endian byte order.
+
+**Parameters:**
+- `file` - Path to the `.lmp` file
+- `bo` - Byte order for reading
+
+#### save
+```java
+void save(Path file) throws IOException
+```
+
+Saves the lump to an external `.lmp` file.
+
+**Parameters:**
+- `file` - Path to save the `.lmp` file
+
+#### getLump / setLump
+```java
+Lump getLump()
+void setLump(Lump lump)
+```
+Gets or sets the lump object.
+
+### LMP File Format
+
+The LMP file header (20 bytes):
+
+```java
+static final int HEADER_SIZE = 20;
+```
+
+| Offset | Type | Field | Description |
+|--------|------|-------|-------------|
+| 0 | int | lumpOffset | Offset to lump data (usually 20) |
+| 4 | int | lumpIndex | Lump table index |
+| 8 | int | lumpVersion | Lump version |
+| 12 | int | lumpSize | Size of lump data |
+| 16 | int | mapRevision | Map revision number |
+
+### Example Usage
+
+```java
+// Load an external lump file
+LumpFile lumpFile = new LumpFile(20); // BSP version 20
+lumpFile.load(Paths.get("maps/mymap_l_0.lmp"));
+
+Lump entitiesLump = lumpFile.getLump();
+System.out.println("Loaded lump: " + entitiesLump.getName());
+System.out.println("Size: " + entitiesLump.getLength() + " bytes");
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Entities" icon="cube" href="/api/library/entities">
+    Entity classes and key-value handling
+  </Card>
+  <Card title="Structs" icon="table" href="/api/library/structs">
+    BSP file structures and data types
+  </Card>
+</CardGroup>

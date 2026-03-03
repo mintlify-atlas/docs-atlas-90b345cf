@@ -1,80 +1,279 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get started with BSPSource in minutes
 ---
 
-## Get started in three steps
+This guide will walk you through your first BSP decompilation using both the GUI and CLI interfaces.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, ensure you have:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+- BSPSource installed ([see installation guide](/installation))
+- A Source engine BSP file to decompile
+- Basic familiarity with Source engine maps
+
+## Using the GUI
+
+The graphical interface is the easiest way to get started with BSPSource.
+
+<Steps>
+  <Step title="Launch BSPSource GUI">
+    Run the appropriate launcher for your platform:
+    - **Windows:** Double-click `bspsrc.bat`
+    - **Linux:** Run `./bspsrc.sh` in terminal
+    - **JAR:** Run `java -jar bspsrc.jar` (with no arguments)
+  </Step>
+
+  <Step title="Select your BSP file">
+    Click **Browse** next to the input field and select the `.bsp` file you want to decompile.
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    You can also drag and drop BSP files directly into the window.
+  </Step>
+
+  <Step title="Configure options (optional)">
+    Common options to consider:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    - **Extract embedded files** - Essential for workshop maps with custom content
+    - **Brush mode** - Choose decompilation method (default: BRUSHPLANES)
+    - **Debug mode** - Adds extra information to output (useful for learning)
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    For your first run, the default settings work well.
+  </Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+  <Step title="Start decompilation">
+    Click **Decompile** to begin the process.
+    
+    Progress will be shown in the output window. The VMF file will be created in the same directory as the BSP file.
+  </Step>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+  <Step title="Open in Hammer">
+    Once complete, open the generated `.vmf` file in Hammer Editor:
+    
+    ```bash
+    hammer.exe path/to/decompiled_map.vmf
+    ```
+    
+    <Warning>
+    If you see gray textures or ERROR models, you may need to extract embedded files. See [troubleshooting](/troubleshooting).
+    </Warning>
+  </Step>
+</Steps>
 
-### Step 3: Go live
+## Using the CLI
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+The command-line interface offers more control and is ideal for batch processing.
 
-## Next steps
+### Basic Decompilation
 
-Now that you have your docs running, explore these key features:
+Decompile a single BSP file:
+
+```bash
+bspsrc path/to/map.bsp
+```
+
+This creates `map.vmf` in the same directory as the input file.
+
+### Common Options
+
+<Tabs>
+  <Tab title="Extract Embedded Files">
+    Extract materials, models, and sounds embedded in the BSP:
+    
+    ```bash
+    bspsrc --unpack_embedded map.bsp
+    ```
+    
+    Creates a `map/` folder with extracted content. Essential for workshop maps.
+  </Tab>
+
+  <Tab title="Custom Output Path">
+    Specify where to save the VMF file:
+    
+    ```bash
+    bspsrc -o output/custom_name.vmf map.bsp
+    ```
+    
+    For multiple files, use a directory:
+    
+    ```bash
+    bspsrc -o output_folder/ map1.bsp map2.bsp map3.bsp
+    ```
+  </Tab>
+
+  <Tab title="Brush Mode">
+    Choose how geometry is decompiled:
+    
+    ```bash
+    # Original faces only (smaller file)
+    bspsrc --brushmode ORIGFACE map.bsp
+    
+    # Brushes and planes (default, most accurate)
+    bspsrc --brushmode BRUSHPLANES map.bsp
+    
+    # Split faces (for complex geometry)
+    bspsrc --brushmode SPLITFACE map.bsp
+    ```
+    
+    See [decompilation modes](/decompilation-modes) for details.
+  </Tab>
+
+  <Tab title="Selective Decompilation">
+    Exclude specific entity types:
+    
+    ```bash
+    # Skip static props (faster, smaller file)
+    bspsrc --no_sprp map.bsp
+    
+    # Skip overlays and cubemaps
+    bspsrc --no_overlays --no_cubemaps map.bsp
+    
+    # Only decompile world geometry
+    bspsrc --no_point_ents --no_brush_ents map.bsp
+    ```
+  </Tab>
+</Tabs>
+
+### Debug Mode
+
+Enable verbose output and extra VMF data:
+
+```bash
+bspsrc -d map.bsp
+```
+
+Debug mode:
+- Shows detailed processing information
+- Adds comments to VMF with source data
+- Helps diagnose decompilation issues
+
+### Batch Processing
+
+Decompile all BSP files in a directory:
+
+```bash
+# Recursively find and decompile all BSP files
+bspsrc -r maps_folder/
+
+# Non-recursive (only current directory)
+bspsrc maps_folder/
+```
+
+## Complete Example: Workshop Map
+
+Here's a complete workflow for decompiling a Steam Workshop map:
+
+<Steps>
+  <Step title="Locate the BSP file">
+    Workshop maps are typically in:
+    
+    ```
+    steamapps/workshop/content/[appid]/[workshopid]/
+    ```
+  </Step>
+
+  <Step title="Decompile with embedded file extraction">
+    ```bash
+    bspsrc --unpack_embedded -d workshop_map.bsp
+    ```
+    
+    This creates:
+    - `workshop_map.vmf` - The decompiled map
+    - `workshop_map/` - Folder with extracted materials/models
+  </Step>
+
+  <Step title="Install extracted content">
+    Move extracted files to your game directory:
+    
+    ```bash
+    # Copy materials
+    cp -r workshop_map/materials/* "path/to/game/materials/"
+    
+    # Copy models
+    cp -r workshop_map/models/* "path/to/game/models/"
+    ```
+  </Step>
+
+  <Step title="Load in Hammer">
+    Open the VMF in Hammer. Textures and models should now appear correctly.
+  </Step>
+</Steps>
+
+## Using BSPInfo
+
+BSPSource includes `bspinfo`, a tool for inspecting BSP files without decompiling:
+
+```bash
+# View general information
+bspinfo map.bsp
+
+# List embedded files
+bspinfo --list-embedded map.bsp
+
+# Check for protection
+bspinfo --check-protection map.bsp
+```
+
+The GUI version shows:
+- BSP version and game
+- Lump statistics
+- Entity count
+- Embedded files
+- Protection detection
+
+## Next Steps
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="CLI Reference" icon="terminal" href="/cli-reference">
+    Explore all command-line options and flags
+  </Card>
+  <Card title="Decompilation Modes" icon="sliders" href="/decompilation-modes">
+    Learn about different brush decompilation strategies
+  </Card>
+  <Card title="Configuration" icon="gear" href="/configuration">
+    Deep dive into configuration options
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
+    Solve common decompilation issues
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Common Issues
+
+<Accordion title="Gray textures or ERROR models">
+  The map contains embedded materials/models that weren't extracted.
+  
+  **Solution:** Re-run with `--unpack_embedded` and move the extracted files to your game directory.
+</Accordion>
+
+<Accordion title="Decompilation fails with error">
+  The map may be protected or use an unsupported BSP version.
+  
+  **Solution:** 
+  - Check BSP version with `bspinfo map.bsp`
+  - Try `--no_prot` to skip protection checks
+  - See [protection detection](/protection-detection) for details
+</Accordion>
+
+<Accordion title="VMF won't open in Hammer">
+  The VMF may be too large or contain invalid data.
+  
+  **Solution:**
+  - Try selective decompilation (exclude entities with `--no_*` flags)
+  - Use `--brushmode ORIGFACE` for a smaller file
+  - Enable debug mode (`-d`) to see what's failing
+</Accordion>
+
+<Accordion title="How do I know which game to specify?">
+  BSPSource auto-detects the game from the BSP header.
+  
+  **To see all supported games:**
+  ```bash
+  bspsrc --appids
+  ```
+  
+  **To override detection:**
+  ```bash
+  bspsrc --appid 240 map.bsp  # Force Counter-Strike: Source
+  ```
+</Accordion>

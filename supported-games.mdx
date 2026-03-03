@@ -1,0 +1,564 @@
+---
+title: Supported Games
+description: Complete list of Source engine games supported by BSPSource
+---
+
+## Overview
+
+BSPSource supports decompiling maps from a wide variety of Source engine games. The tool uses Steam Application IDs to identify games and apply game-specific decompilation logic.
+
+## Automatic Detection
+
+BSPSource automatically detects the source game by analyzing:
+
+- BSP file version
+- Entity class names in the map
+- Map file name patterns
+
+In most cases, you don't need to manually specify the game. However, if auto-detection fails, use the `--appid` flag (CLI) or set the App ID in the GUI.
+
+## Supported Games
+
+### Valve Games
+
+<CardGroup cols={2}>
+  <Card title="Half-Life 2" icon="lambda">
+    **App ID:** `220`
+    
+    **BSP Version:** 17-20
+    
+    **File Pattern:** `d1_*`, `d2_*`, `d3_*`
+    
+    The original Half-Life 2 campaign maps.
+  </Card>
+  
+  <Card title="Half-Life 2: Episode One" icon="lambda">
+    **App ID:** `380`
+    
+    **BSP Version:** 20
+    
+    Episode One campaign maps.
+  </Card>
+  
+  <Card title="Half-Life 2: Episode Two" icon="lambda">
+    **App ID:** `420`
+    
+    **BSP Version:** 20
+    
+    Episode Two campaign maps.
+  </Card>
+  
+  <Card title="Half-Life 2: Deathmatch" icon="crosshairs">
+    **App ID:** `320`
+    
+    **BSP Version:** 19
+    
+    Multiplayer deathmatch maps for Half-Life 2.
+  </Card>
+  
+  <Card title="Half-Life: Source" icon="lambda">
+    **App ID:** `280`
+    
+    **BSP Version:** 19
+    
+    The original Half-Life remade in Source engine.
+  </Card>
+  
+  <Card title="Portal" icon="circle">
+    **App ID:** `400`
+    
+    **BSP Version:** 19
+    
+    **File Pattern:** `testchmb_*`
+    
+    Original Portal test chamber maps.
+  </Card>
+  
+  <Card title="Portal 2" icon="circle">
+    **App ID:** `620`
+    
+    **BSP Version:** 21
+    
+    **File Pattern:** `sp_a1_*` through `sp_a5_*`, `mp_coop_*`
+    
+    Portal 2 single-player and co-op maps. Includes Perpetual Testing Initiative (PTI) support.
+  </Card>
+  
+  <Card title="Team Fortress 2" icon="flag">
+    **App ID:** `440`
+    
+    **BSP Version:** 20
+    
+    **File Pattern:** `cp_*`, `pl_*`, `koth_*`, `ctf_*`, `arena_*`, `mvm_*`, etc.
+    
+    Team Fortress 2 maps across all game modes (Control Points, Payload, King of the Hill, Capture the Flag, Mann vs Machine, etc.).
+  </Card>
+  
+  <Card title="Counter-Strike: Source" icon="gun">
+    **App ID:** `240`
+    
+    **BSP Version:** 19-20
+    
+    **File Pattern:** `de_*`, `cs_*`
+    
+    Classic CS:S bomb defusal and hostage rescue maps.
+  </Card>
+  
+  <Card title="Counter-Strike: Global Offensive" icon="gun">
+    **App ID:** `730`
+    
+    **BSP Version:** 20-21
+    
+    **File Pattern:** `de_*`, `cs_*`, `ar_*`
+    
+    CS:GO competitive, casual, and Arms Race maps.
+  </Card>
+  
+  <Card title="Day of Defeat: Source" icon="medal">
+    **App ID:** `300`
+    
+    **BSP Version:** 19
+    
+    **File Pattern:** `dod_*`
+    
+    World War II themed multiplayer maps.
+  </Card>
+  
+  <Card title="Left 4 Dead" icon="zombie">
+    **App ID:** `500`
+    
+    **BSP Version:** 20
+    
+    **File Pattern:** `l4d_*`, `c1m*` through `c5m*`
+    
+    Left 4 Dead co-op campaign and versus maps.
+  </Card>
+  
+  <Card title="Left 4 Dead 2" icon="zombie">
+    **App ID:** `550`
+    
+    **BSP Version:** 20-21
+    
+    **File Pattern:** `c1m*` through `c14m*`
+    
+    Left 4 Dead 2 campaigns including DLC and community maps.
+  </Card>
+  
+  <Card title="Alien Swarm" icon="alien">
+    **App ID:** `630`
+    
+    **BSP Version:** 21
+    
+    Top-down co-op shooter maps.
+  </Card>
+  
+  <Card title="Dota 2" icon="shield">
+    **App ID:** `570`
+    
+    **BSP Version:** 20-27
+    
+    Dota 2 game maps. Note: Dota 2 uses a heavily modified Source engine.
+  </Card>
+</CardGroup>
+
+### Third-Party Games
+
+<CardGroup cols={2}>
+  <Card title="Black Mesa" icon="lambda">
+    **App ID:** `362890`
+    
+    **BSP Version:** 20-21
+    
+    Fan-made remake of Half-Life in Source engine.
+  </Card>
+  
+  <Card title="Garry's Mod" icon="toolbox">
+    **App ID:** `4000`
+    
+    **BSP Version:** Varies
+    
+    Sandbox game supporting maps from multiple Source games.
+  </Card>
+  
+  <Card title="Insurgency" icon="gun">
+    **App ID:** `222880`
+    
+    **BSP Version:** 20-21
+    
+    Tactical shooter maps.
+  </Card>
+  
+  <Card title="No More Room in Hell" icon="zombie">
+    **App ID:** `224260`
+    
+    **BSP Version:** 20
+    
+    Survival horror co-op maps.
+  </Card>
+  
+  <Card title="Contagion" icon="biohazard">
+    **App ID:** `238430`
+    
+    **BSP Version:** 20
+    
+    Zombie survival maps.
+  </Card>
+  
+  <Card title="Blade Symphony" icon="sword">
+    **App ID:** `225600`
+    
+    **BSP Version:** 20
+    
+    Sword fighting duel maps.
+  </Card>
+  
+  <Card title="Synergy" icon="users">
+    **App ID:** `17520`
+    
+    **BSP Version:** 20
+    
+    Co-op mod for Half-Life 2.
+  </Card>
+  
+  <Card title="Zombie Panic! Source" icon="zombie">
+    **App ID:** `17500`
+    
+    **BSP Version:** 19-20
+    
+    Zombies vs survivors multiplayer maps.
+  </Card>
+  
+  <Card title="Dear Esther" icon="book">
+    **App ID:** `203810`
+    
+    **BSP Version:** 20
+    
+    Story-driven exploration game.
+  </Card>
+  
+  <Card title="Zeno Clash" icon="fist">
+    **App ID:** `22200`
+    
+    **BSP Version:** 19
+    
+    First-person brawler maps.
+  </Card>
+  
+  <Card title="Tactical Intervention" icon="gun">
+    **App ID:** `51100`
+    
+    **BSP Version:** 20
+    
+    Counter-terrorism tactical shooter.
+  </Card>
+  
+  <Card title="The Ship" icon="ship">
+    **App ID:** `2400`
+    
+    **BSP Version:** 17-19
+    
+    Murder mystery multiplayer game.
+  </Card>
+  
+  <Card title="Bloody Good Time" icon="clock">
+    **App ID:** `2450`
+    
+    **BSP Version:** 19
+    
+    Spiritual successor to The Ship.
+  </Card>
+  
+  <Card title="Dark Messiah of Might and Magic" icon="wand-magic">
+    **App ID:** `2100`
+    
+    **BSP Version:** 18-19
+    
+    Action RPG with Source engine.
+  </Card>
+  
+  <Card title="Vampire: The Masquerade - Bloodlines" icon="vampire">
+    **App ID:** `2600`
+    
+    **BSP Version:** 17
+    
+    RPG using early Source engine.
+  </Card>
+  
+  <Card title="SiN Episodes: Emergence" icon="radiation">
+    **App ID:** `1300`
+    
+    **BSP Version:** 19
+    
+    First-person shooter episode.
+  </Card>
+  
+  <Card title="Postal III" icon="envelope">
+    **App ID:** `10220`
+    
+    **BSP Version:** 20
+    
+    Controversial action game.
+  </Card>
+  
+  <Card title="Vindictus (Mabinogi Heroes)" icon="sword">
+    **App ID:** `212160`
+    
+    **BSP Version:** 20
+    
+    Action MMORPG using Source engine.
+  </Card>
+  
+  <Card title="Titanfall" icon="robot">
+    **App ID:** `1454890`
+    
+    **BSP Version:** Heavily modified
+    
+    Multiplayer FPS with mechs. Uses heavily modified Source engine.
+    
+    <Warning>
+      Titanfall support is experimental due to extensive engine modifications.
+    </Warning>
+  </Card>
+</CardGroup>
+
+### Experimental / Community Engines
+
+<Card title="Strata Source" icon="layer-group">
+  **App ID:** `-1000` (Custom)
+  
+  Community-maintained fork of Source engine with modern features.
+  
+  <Note>
+    Uses a custom negative app ID since it's not an official Steam game.
+  </Note>
+</Card>
+
+<Card title="Cyber Diver" icon="computer">
+  **App ID:** `-500` (Custom)
+  
+  Custom Source engine project.
+  
+  <Note>
+    Uses a custom negative app ID.
+  </Note>
+</Card>
+
+## Listing App IDs
+
+### CLI
+
+List all supported games and their app IDs:
+
+```bash
+bspsrc --appids
+```
+
+Output:
+```
+      ID  Name
+     220  Half-Life 2
+     240  Counter-Strike: Source
+     280  Half-Life: Source
+     300  Day of Defeat: Source
+     320  Half-Life 2: Deathmatch
+     380  Half-Life 2: Episode One
+     400  Portal
+     420  Half-Life 2: Episode Two
+     440  Team Fortress 2
+     500  Left 4 Dead
+     550  Left 4 Dead 2
+     570  Dota 2
+     620  Portal 2
+     ...
+```
+
+### GUI
+
+In the GUI, go to **Other Options** tab and click **List App IDs**.
+
+### Programmatically
+
+```java
+import info.ata4.bspsrc.lib.app.SourceAppDB;
+
+var appDB = SourceAppDB.getInstance();
+var apps = appDB.getAppList();
+
+apps.forEach((appId, name) -> 
+    System.out.println(appId + ": " + name)
+);
+```
+
+## Using App IDs
+
+### When to Set App ID Manually
+
+Manually specify the app ID when:
+
+1. **Auto-detection fails** - The map doesn't have clear game identifiers
+2. **Custom maps** - Community maps that don't follow naming conventions
+3. **Modified BSP files** - BSP files edited with custom tools
+4. **Cross-game maps** - Maps designed for multiple games
+
+### How to Set App ID
+
+<Tabs>
+  <Tab title="CLI">
+    Use the `--appid` flag:
+    
+    ```bash
+    bspsrc --appid 440 custom_map.bsp
+    ```
+    
+    Force Team Fortress 2 decompilation:
+    
+    ```bash
+    bspsrc --appid 440 cp_custom.bsp
+    ```
+  </Tab>
+  
+  <Tab title="GUI">
+    1. Go to **Other Options** tab
+    2. Find the **App ID** field
+    3. Enter the desired app ID number
+    4. Click **Decompile**
+    
+    To find the correct app ID, click **List App IDs** in the same tab.
+  </Tab>
+  
+  <Tab title="API">
+    Set `defaultAppId` in the configuration:
+    
+    ```java
+    BspSourceConfig config = new BspSourceConfig();
+    config.defaultAppId = SourceAppId.TEAM_FORTRESS_2; // 440
+    ```
+    
+    Or use the constant:
+    
+    ```java
+    import info.ata4.bspsrc.lib.app.SourceAppId;
+    
+    config.defaultAppId = SourceAppId.PORTAL_2;
+    config.defaultAppId = SourceAppId.COUNTER_STRIKE_GO;
+    config.defaultAppId = SourceAppId.LEFT_4_DEAD_2;
+    ```
+  </Tab>
+</Tabs>
+
+## BSP Version Compatibility
+
+BSPSource supports BSP versions from Source engine games:
+
+| BSP Version | Games | Notes |
+|-------------|-------|-------|
+| 17 | Half-Life 2 (early), Vampire: Bloodlines | Early Source engine |
+| 18 | Dark Messiah | Transitional version |
+| 19 | HL2, CS:S, HL:S, DoD:S, Portal | Most common older version |
+| 20 | HL2:EP1, HL2:EP2, TF2, L4D, CS:GO | Standard Source 2007+ |
+| 21 | Portal 2, Alien Swarm, L4D2 | Source 2009+ |
+| 22-27 | Dota 2 | Heavily modified Source |
+
+<Warning>
+  BSP versions outside the standard range (17-21) may have limited support or require special handling.
+</Warning>
+
+## Game-Specific Features
+
+### Team Fortress 2
+
+TF2 maps are detected by prefixes:
+- `cp_*` - Control Points
+- `pl_*` - Payload
+- `plr_*` - Payload Race
+- `koth_*` - King of the Hill
+- `ctf_*` - Capture the Flag
+- `arena_*` - Arena
+- `mvm_*` - Mann vs Machine
+- `tc_*` - Territory Control
+- `sd_*` - Special Delivery
+
+### Portal 2
+
+Portal 2 maps use specific naming:
+- `sp_a1_*` through `sp_a5_*` - Single-player chapters
+- `mp_coop_*` - Co-op maps
+
+Portal 2 also includes extensive custom entities for puzzle mechanics.
+
+### Left 4 Dead / L4D2
+
+Campaign maps are organized by chapters:
+- `c1m1_*`, `c1m2_*`, etc. - Campaign 1, Map 1, 2...
+- Up to `c14m*` in L4D2 (including DLC)
+
+### Counter-Strike Series
+
+CS maps follow conventions:
+- `de_*` - Bomb Defusal (Demolition)
+- `cs_*` - Hostage Rescue
+- `ar_*` - Arms Race (CS:GO)
+
+## Unsupported Games
+
+The following Source engine games are **not currently supported**:
+
+- **Source 2 games** (Dota 2 Reborn, Half-Life: Alyx, Counter-Strike 2) - Different engine
+- **Apex Legends** - Heavily modified Source, proprietary format
+- **Respawn games** (Titanfall 2 is partially supported)
+- **Non-Source games** - BSPSource only works with Source engine BSP files
+
+<Note>
+  If you need support for an unlisted Source engine game, please [open an issue](https://github.com/ata4/bspsrc) with sample BSP files.
+</Note>
+
+## Game Detection Examples
+
+### Example 1: Auto-Detection Success
+
+```bash
+bspsrc cp_dustbowl.bsp
+```
+
+BSPSource detects:
+- File pattern: `cp_*` (Control Point)
+- BSP version: 20
+- Entities: TF2-specific entities
+- **Result:** Correctly identifies as Team Fortress 2 (app ID 440)
+
+### Example 2: Auto-Detection Failure
+
+```bash
+bspsrc custom_amazing_map.bsp
+```
+
+BSPSource cannot detect game from:
+- Non-standard file name
+- Generic entities only
+- **Result:** Falls back to UNKNOWN (app ID 0)
+
+**Solution:** Manually specify app ID:
+
+```bash
+bspsrc --appid 440 custom_amazing_map.bsp
+```
+
+### Example 3: Cross-Game Map
+
+Some maps work in multiple games (e.g., HL2 and Garry's Mod):
+
+```bash
+bspsrc generic_building.bsp
+```
+
+BSPSource may detect the wrong game. Override:
+
+```bash
+bspsrc --appid 4000 generic_building.bsp  # Force Garry's Mod
+```
+
+## See Also
+
+- [CLI Reference](/cli-reference) - Using `--appid` flag
+- [Configuration](/configuration) - Setting `defaultAppId`
+- [GUI Usage](/gui-usage) - Using app ID in GUI

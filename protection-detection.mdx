@@ -1,0 +1,353 @@
+---
+title: Protection Detection
+description: Detecting and handling anti-decompiling protection methods
+icon: shield-halved
+---
+
+BSPSource can detect various anti-decompilation protection methods used by mappers to prevent reverse engineering of their maps. Understanding these methods helps you know what to expect from decompiled output.
+
+## Protection Methods
+
+BSPSource detects six different protection methods:
+
+### 1. VMEX Entity Flag (no_decomp)
+
+**Detection:** Entity with `no_decomp` keyvalue
+
+```vmf
+entity
+{
+    "classname" "info_target"
+    "no_decomp" "1"
+}
+```
+
+**Purpose:** Marks entities that should not be decompiled
+
+**Impact:** Low - BSPSource ignores this flag and decompiles anyway
+
+**Detection in code:**
+```java
+if (bspprot.hasEntityFlag()) {
+    // "VMEX entity flag (no_decomp)" detected
+}
+```
+
+### 2. VMEX Texture Flag (tools/locked)
+
+**Detection:** Presence of `tools/locked` texture in texture list
+
+**Purpose:** Signals that the map is protected against decompilation
+
+**Impact:** Low - BSPSource ignores this flag
+
+**Detection in code:**
+```java
+if (bspprot.hasTextureFlag()) {
+    // "VMEX texture flag (tools/locked)" detected
+}
+```
+
+### 3. VMEX Protector Brush Flag
+
+**Detection:** Three specific brushes with exact dimensions:
+- Brush 1: 1×4×9 units
+- Brush 2: 4×9×1 units  
+- Brush 3: 9×1×4 units
+
+**Additional requirements:**
+- All sides use the same texture
+- Brushes are axis-aligned
+- All three must exist together
+
+**Purpose:** Prefab-based protection marker
+
+**Impact:** Low - Brushes are flagged in visgroups but decompilation continues
+
+**Detection in code:**
+```java
+if (bspprot.hasBrushFlag()) {
+    // "VMEX protector brush flag" detected
+    List<DBrush> protBrushes = bspprot.getProtectedBrushes();
+}
+```
+
+<Note>
+  Protected brushes are written to a separate func_detail entity in the "VMEX protector brushes" visgroup.
+</Note>
+
+### 4. BSPProtect Entity Encryption
+
+**Detection:** `entities.dat` file in pakfile
+
+**Requirements:**
+- BSP version 20 (Source 2007/2009)
+- ICE-encrypted entity lump
+
+**Purpose:** Encrypts all entities except worldspawn
+
+**Impact:** **High** - Entity data is unrecoverable without decryption key
+
+**Detection in code:**
+```java
+if (bspprot.hasEncryptedEntities()) {
+    // "BSPProtect entity encryption" detected
+}
+```
+
+<Warning>
+  Maps with encrypted entities cannot be meaningfully decompiled. Only worldspawn and brush geometry can be recovered.
+</Warning>
+
+### 5. IID Entity Obfuscation
+
+**Detection:** All entity targetnames are numeric
+
+```vmf
+entity
+{
+    "targetname" "12345"
+}
+
+entity  
+{
+    "targetname" "67890"
+}
+```
+
+**Purpose:** Obscures logical entity relationships
+
+**Impact:** Medium - Decompilation works but entities are harder to understand
+
+**Detection in code:**
+```java
+if (bspprot.hasObfuscatedEntities()) {
+    // "IID entity obfuscation" detected
+}
+```
+
+### 6. IID Nodraw Texture Hack
+
+**Detection:** >90% of brush sides use nodraw texture (texinfo = 0)
+
+**Purpose:** Corrupts texinfo optimization to break texture reconstruction
+
+**Impact:** **High** - Most textures will be incorrect or missing
+
+**Detection in code:**
+```java
+if (bspprot.hasModifiedTexinfo()) {
+    // "IID nodraw texture hack" detected
+}
+```
+
+<Warning>
+  Maps using the nodraw hack will have severely broken textures. Tool texture fixing cannot recover the original texture names.
+</Warning>
+
+## Protection Check
+
+Run protection detection before decompilation:
+
+```java
+BspProtection bspprot = new BspProtection(reader, brushBounds, texsrc);
+
+if (bspprot.check()) {
+    // Protection detected
+    List<String> methods = bspprot.getProtectionMethods();
+    
+    for (String method : methods) {
+        System.out.println("Detected: " + method);
+    }
+}
+```
+
+### Protection Constants
+
+```java
+// BSPProtect encryption file
+BspProtection.BSPPROTECT_FILE; // "entities.dat"
+
+// VMEX protection markers
+BspProtection.VMEX_LOCKED_TEX; // "tools/locked"
+BspProtection.VMEX_LOCKED_ENT; // "no_decomp"
+```
+
+## Handling Protected Maps
+
+### Skip Protection Check
+
+```java
+config.skipProt = true; // Bypass protection detection
+```
+
+<Warning>
+  Skipping protection checks does not bypass actual protection - it only disables detection warnings. Protected content will still be unrecoverable.
+</Warning>
+
+### Protected Entity Handling
+
+Protected entities are marked in visgroups:
+
+```vmf
+editor
+{
+    "visgroupid" "123"
+    "visgroupshown" "1"
+    "visgroupautoshown" "1"
+}
+```
+
+Visgroup: **"VMEX flagged entities"**
+
+### Protected Brush Handling
+
+Protected brushes are written separately:
+
+```vmf
+entity
+{
+    "id" "456"
+    "classname" "func_detail"
+    editor
+    {
+        "visgroupid" "124"
+    }
+    // Protected brushes here
+}
+```
+
+Visgroup: **"VMEX protector brushes"**
+
+## Protection Method Details
+
+### Brush Protection Algorithm
+
+Protector brushes are detected using these checks:
+
+```java
+private static final float EPS_SIZE = 0.01f;
+private static final float ALIGNED_ALPHA = 0.99f;
+
+private static final Vector3d PB1 = new Vector3d(1, 4, 9);
+private static final Vector3d PB2 = new Vector3d(4, 9, 1);
+private static final Vector3d PB3 = new Vector3d(9, 1, 4);
+
+// Brush must be:
+// 1. Axis-aligned (one normal component > 0.99)
+// 2. All sides same texture
+// 3. Exact dimensions matching PB1, PB2, or PB3
+```
+
+### Nodraw Detection Algorithm
+
+```java
+private static final float NODRAW_RATIO_LIMIT = 0.9f;
+
+double nodrawSides = /* count of sides with texinfo == 0 */;
+double nodrawRatio = nodrawSides / bsp.brushSides.size();
+
+if (nodrawRatio > NODRAW_RATIO_LIMIT) {
+    // Nodraw hack detected
+}
+```
+
+## Protection Impact Summary
+
+| Method | Impact | Recoverable |
+|--------|--------|-------------|
+| VMEX entity flag | Low | Yes |
+| VMEX texture flag | Low | Yes |
+| VMEX protector brushes | Low | Yes |
+| BSPProtect encryption | **High** | No |
+| IID entity obfuscation | Medium | Partial |
+| IID nodraw hack | **High** | No |
+
+## Configuration Example
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+
+// Don't skip protection detection
+config.skipProt = false;
+
+// Enable texture fixing (helps with some protection)
+config.fixCubemapTextures = true;
+config.fixToolTextures = true;
+
+// Enable visgroups to see protected elements
+config.writeVisgroups = true;
+
+// Decompile anyway
+BspSource decompiler = new BspSource(bspFile, config);
+decompiler.decompile();
+```
+
+## Working with Protected Maps
+
+<AccordionGroup>
+  <Accordion title="VMEX flags detected">
+    These are informational markers. Decompilation will work normally. Protected elements are marked in visgroups for reference.
+  </Accordion>
+
+  <Accordion title="BSPProtect encryption detected">
+    Entity data is unrecoverable. You can still extract brush geometry and worldspawn, but all other entities will be missing or incomplete.
+  </Accordion>
+
+  <Accordion title="Nodraw hack detected">
+    Textures are severely corrupted. You can reconstruct geometry but will need to manually re-texture most surfaces. Use `faceTexture` override for debugging.
+  </Accordion>
+
+  <Accordion title="Entity obfuscation detected">
+    Entities will decompile but targetnames are meaningless numbers. You'll need to manually reconstruct logical entity relationships.
+  </Accordion>
+</AccordionGroup>
+
+## Bypassing Protection
+
+BSPSource intentionally ignores VMEX-style flags (entity, texture, brush) as these are informational rather than technical protections.
+
+**What can be bypassed:**
+- VMEX flags (automatically ignored)
+- Protector brushes (flagged but decompiled)
+
+**What cannot be bypassed:**
+- BSPProtect encryption (requires decryption key)
+- Nodraw hack (texture data is corrupted)
+- Entity obfuscation (targetnames are lost)
+
+<Warning>
+  Attempting to decompile protected maps may violate the mapper's wishes or terms of use. Always respect intellectual property rights.
+</Warning>
+
+## Related Topics
+
+- [Texture Options](/texture-options) - Fixing corrupted textures
+- [Embedded Files](/embedded-files) - Detecting encrypted pakfile content
+- [Entity Handling](/entity-handling) - Understanding entity reconstruction
+
+## Protection Detection Output
+
+When protection is detected, BSPSource logs:
+
+```
+Found lock key!
+Found lock texture!
+Found protector prefab!
+Found encrypted entities!
+Found obfuscation!
+Found nodraw hack!
+```
+
+Use `bspprot.getProtectionMethods()` to get a formatted list:
+
+```java
+List<String> methods = bspprot.getProtectionMethods();
+// Returns:
+// ["VMEX entity flag (no_decomp)",
+//  "VMEX texture flag (tools/locked)",
+//  "VMEX protector brush flag",
+//  "BSPProtect entity encryption",
+//  "IID entity obfuscation",
+//  "IID nodraw texture hack"]
+```

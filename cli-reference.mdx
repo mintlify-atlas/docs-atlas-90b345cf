@@ -1,0 +1,527 @@
+---
+title: CLI Reference
+description: Complete command-line interface reference for BSPSource
+---
+
+## Synopsis
+
+```bash
+bspsrc [OPTIONS] <bsp-files-or-folders>...
+```
+
+BSPSource can decompile Source engine BSP map files back to VMF format. The CLI provides extensive options to control the decompilation process.
+
+## Parameters
+
+<ParamField path="bsp-files-or-folders" type="path" required>
+  One or more BSP files or folders to decompile.
+  
+  If a folder is provided, BSPSource will process all `.bsp` files in that directory. Use `--recursive` to include subdirectories.
+  
+  Alternatively, if `--list` is specified, provide text files containing paths to BSP files (one per line).
+</ParamField>
+
+## Options
+
+### General Options
+
+<ParamField path="--help" type="boolean">
+  Display help information and exit.
+</ParamField>
+
+<ParamField path="--version" type="boolean">
+  Display version information and exit.
+</ParamField>
+
+<ParamField path="--appids" type="boolean">
+  List all available Steam Application IDs and exit.
+  
+  Useful for finding the correct app ID to use with `--appid`.
+</ParamField>
+
+<ParamField path="-d, --debug" type="boolean" default="false">
+  Enable debug mode.
+  
+  Increases verbosity and adds additional debug data to the VMF file. Useful for troubleshooting decompilation issues.
+</ParamField>
+
+<ParamField path="-r, --recursive" type="boolean" default="false">
+  Recursively decompile files found in subdirectories.
+  
+  When a folder is provided as input, this option will process all BSP files in nested subdirectories.
+</ParamField>
+
+<ParamField path="-o, --output" type="path">
+  Override output path for VMF file(s).
+  
+  - For a single BSP file: Specifies the exact output VMF file path.
+  - For multiple BSP files: Treated as a directory where all VMF files will be written.
+  
+  If not specified, VMF files are created in the same directory as their source BSP files.
+</ParamField>
+
+<ParamField path="-l, --list" type="boolean" default="false">
+  Treat specified files as text files containing a BSP file list.
+  
+  Each line in the file should contain a path to a BSP file or folder. This is useful for batch processing many files.
+</ParamField>
+
+### Entity Related Options
+
+<ParamField path="--no_point_ents" type="boolean" default="false">
+  Don't write any point entities.
+  
+  Point entities are entities without brushes, such as `light`, `info_player_start`, etc.
+</ParamField>
+
+<ParamField path="--no_brush_ents" type="boolean" default="false">
+  Don't write any brush entities.
+  
+  Brush entities are entities with geometry, such as `func_door`, `trigger_multiple`, etc.
+</ParamField>
+
+<ParamField path="--no_sprp" type="boolean" default="false">
+  Don't write `prop_static` entities.
+  
+  Static props are non-moving models like buildings, trees, and decorative elements.
+</ParamField>
+
+<ParamField path="--no_overlays" type="boolean" default="false">
+  Don't write `info_overlay` entities.
+  
+  Overlays are decals applied to surfaces, such as graffiti or signs.
+</ParamField>
+
+<ParamField path="--no_cubemaps" type="boolean" default="false">
+  Don't write `env_cubemap` entities.
+  
+  Cubemaps provide reflections for reflective surfaces.
+</ParamField>
+
+<ParamField path="--no_details" type="boolean" default="false">
+  Don't write `func_detail` entities.
+  
+  Detail brushes don't affect visibility calculations and are used for optimization.
+</ParamField>
+
+<ParamField path="--no_areaportals" type="boolean" default="false">
+  Don't write `func_areaportal` or `func_areaportal_window` entities.
+  
+  Areaportals control visibility between areas for optimization.
+</ParamField>
+
+<ParamField path="--no_occluders" type="boolean" default="false">
+  Don't write `func_occluder` entities.
+  
+  Occluders block visibility and improve performance.
+</ParamField>
+
+<ParamField path="--no_ladders" type="boolean" default="false">
+  Don't write `func_ladder` entities.
+  
+  Ladder entities define climbable surfaces.
+</ParamField>
+
+<ParamField path="--no_visclusters" type="boolean" default="false">
+  Don't write `func_viscluster` entities.
+  
+  Visibility clusters are used for optimization in large maps.
+</ParamField>
+
+<ParamField path="--no_rotfix" type="boolean" default="false">
+  Don't fix instance entity brush rotations for Hammer.
+  
+  By default, BSPSource corrects rotation issues that occur with instance entities. This flag disables that behavior.
+</ParamField>
+
+<ParamField path="--force_manual_areaportal" type="boolean" default="false">
+  Force manual entity mapping for areaportal entities.
+  
+  By default, BSPSource automatically maps areaportals. This forces manual mapping instead.
+</ParamField>
+
+<ParamField path="--merge_details" type="boolean" default="false">
+  Merge `func_detail` brushes that touch into one entity.
+  
+  This can reduce entity count in the decompiled VMF.
+</ParamField>
+
+### Brush Related Options
+
+<ParamField path="--no_brushes" type="boolean" default="false">
+  Don't write any world brushes.
+  
+  World brushes are the main geometry of the map. Enabling this creates an empty map with only entities.
+</ParamField>
+
+<ParamField path="--no_disps" type="boolean" default="false">
+  Don't write displacement surfaces.
+  
+  Displacements are deformable surfaces used for terrain and organic shapes.
+</ParamField>
+
+<ParamField path="--brushmode" type="string" default="BRUSHPLANES">
+  Brush decompiling mode. Controls how brushes are reconstructed from the BSP.
+  
+  <Tabs>
+    <Tab title="BRUSHPLANES">
+      **Brushes and planes** (default)
+      
+      Reconstructs brushes using plane information. This is the most accurate method and produces the cleanest results, closely matching the original VMF structure.
+      
+      Use this mode for best results in most cases.
+    </Tab>
+    
+    <Tab title="ORIGFACE">
+      **Original faces only**
+      
+      Creates brushes from the original faces before splitting by VBSP. This mode attempts to recreate the original brush structure but may not be 100% accurate.
+      
+      Useful when BRUSHPLANES mode fails or produces incorrect results.
+    </Tab>
+    
+    <Tab title="ORIGFACE_PLUS">
+      **Original + split faces**
+      
+      Creates brushes from both original faces and split faces. This creates more geometry than ORIGFACE mode.
+      
+      Provides more detail but results in more complex geometry.
+    </Tab>
+    
+    <Tab title="SPLITFACE">
+      **Split faces only**
+      
+      Creates brushes from split faces only (faces after VBSP processing). This creates the most brushes and complexity.
+      
+      Use this when the map structure must match exactly what the engine sees, but be prepared for very complex geometry.
+    </Tab>
+  </Tabs>
+</ParamField>
+
+<ParamField path="--thickness" type="float" default="1.0">
+  Thickness of brushes created from flat faces, in units.
+  
+  In face-based modes (`ORIGFACE`, `ORIGFACE_PLUS`, `SPLITFACE`), some faces may be perfectly flat. This setting controls how thick the brushes created from these faces will be.
+  
+  Lower values create thinner brushes but may cause issues in Hammer. The default of 1.0 unit is generally safe.
+</ParamField>
+
+### Texture Related Options
+
+<ParamField path="--facetex" type="string" default="">
+  Replace all face textures with this texture.
+  
+  Useful for debugging brush geometry without visual clutter, or for creating template maps.
+  
+  Example: `--facetex "dev/dev_measuregeneric01"`
+</ParamField>
+
+<ParamField path="--bfacetex" type="string" default="">
+  Replace all back-face textures with this texture.
+  
+  Only used in face-based decompiling modes (`ORIGFACE`, `ORIGFACE_PLUS`, `SPLITFACE`). Back faces are the internal faces of brushes created from flat faces.
+  
+  Example: `--bfacetex "tools/toolsnodraw"`
+</ParamField>
+
+<ParamField path="--no_cubemaptexfix" type="boolean" default="false">
+  Don't fix environment-mapped materials.
+  
+  By default, BSPSource corrects cubemap material references to work in Hammer. This flag disables that behavior.
+</ParamField>
+
+<ParamField path="--no_ttfix" type="boolean" default="false">
+  Don't fix tool textures.
+  
+  By default, BSPSource corrects tool texture names like `toolsnodraw` or `toolsblocklight`. This flag disables that behavior.
+</ParamField>
+
+### Miscellaneous Options
+
+<ParamField path="--no_vmf" type="boolean" default="false">
+  Don't write any VMF files, read BSP only.
+  
+  Useful for testing BSP reading or using BSPSource as a BSP parser without output.
+</ParamField>
+
+<ParamField path="--no_lumpfiles" type="boolean" default="false">
+  Don't load lump files (`.lmp`) associated with the BSP file.
+  
+  Lump files contain additional data that can be embedded separately from the BSP. Disabling this may result in incomplete decompilation.
+</ParamField>
+
+<ParamField path="--no_prot" type="boolean" default="false">
+  Skip decompiling protection checking.
+  
+  Some maps include protection mechanisms to prevent decompilation. BSPSource attempts to detect these. This flag skips that detection, which can increase speed when mass-decompiling unprotected maps.
+</ParamField>
+
+<ParamField path="--no_visgroups" type="boolean" default="false">
+  Don't group entities from instances into visgroups.
+  
+  By default, BSPSource organizes instance entities into visgroups for easier editing. This flag disables that organization.
+</ParamField>
+
+<ParamField path="--no_cams" type="boolean" default="false">
+  Don't create Hammer cameras above each player spawn.
+  
+  By default, BSPSource creates camera entities at player spawn points for easy navigation in Hammer. This flag disables that feature.
+</ParamField>
+
+<ParamField path="--appid" type="integer" default="0">
+  Override game detection by using this Steam Application ID.
+  
+  BSPSource normally auto-detects the game from the BSP file. Use this to force a specific game when auto-detection fails or is incorrect.
+  
+  Use `--appids` to list all known app IDs.
+  
+  Example: `--appid 440` (Team Fortress 2)
+</ParamField>
+
+<ParamField path="--format" type="string" default="AUTO">
+  Set the VMF format used for decompiled maps.
+  
+  <Tabs>
+    <Tab title="AUTO">
+      **Automatic** (default)
+      
+      BSPSource automatically determines the appropriate format based on the game and BSP version.
+    </Tab>
+    
+    <Tab title="OLD">
+      **Source 2004 to 2009**
+      
+      Use the older VMF format compatible with older versions of Hammer.
+    </Tab>
+    
+    <Tab title="NEW">
+      **Source 2010 and later**
+      
+      Use the newer VMF format for modern Source games.
+    </Tab>
+  </Tabs>
+</ParamField>
+
+<ParamField path="--unpack_embedded" type="boolean" default="false">
+  Unpack embedded files in the BSP.
+  
+  Many BSP files contain embedded resources like textures, models, and sounds. This option extracts them to disk alongside the VMF file.
+</ParamField>
+
+<ParamField path="--no_smart_unpack" type="boolean" default="false">
+  Disable 'smart' extracting of embedded files.
+  
+  Smart extracting automatically skips files generated by VBSP that are only relevant to running the map in the engine (like compiled lighting data). Disabling this extracts all embedded files.
+</ParamField>
+
+## Examples
+
+### Basic Usage
+
+Decompile a single BSP file:
+
+```bash
+bspsrc ctf_2fort.bsp
+```
+
+Output: `ctf_2fort.vmf` in the same directory
+
+### Decompile Multiple Files
+
+Decompile all BSP files in a directory:
+
+```bash
+bspsrc /path/to/maps/
+```
+
+### Recursive Decompilation
+
+Decompile all BSP files in a directory and its subdirectories:
+
+```bash
+bspsrc --recursive /path/to/maps/
+```
+
+### Custom Output Location
+
+Decompile with custom output path:
+
+```bash
+bspsrc -o /path/to/output/de_dust2.vmf de_dust2.bsp
+```
+
+For multiple files, output is treated as a directory:
+
+```bash
+bspsrc -o /path/to/output/ *.bsp
+```
+
+### Debug Mode
+
+Enable debug output:
+
+```bash
+bspsrc --debug cp_dustbowl.bsp
+```
+
+### Selective Entity Decompilation
+
+Decompile without static props:
+
+```bash
+bspsrc --no_sprp pl_badwater.bsp
+```
+
+Decompile only world geometry (no entities):
+
+```bash
+bspsrc --no_point_ents --no_brush_ents koth_harvest.bsp
+```
+
+### Brush Mode Examples
+
+<Tabs>
+  <Tab title="Default Mode">
+    Use BRUSHPLANES mode (default):
+    
+    ```bash
+    bspsrc cp_dustbowl.bsp
+    ```
+    
+    This is equivalent to:
+    
+    ```bash
+    bspsrc --brushmode BRUSHPLANES cp_dustbowl.bsp
+    ```
+  </Tab>
+  
+  <Tab title="Original Faces">
+    Use ORIGFACE mode:
+    
+    ```bash
+    bspsrc --brushmode ORIGFACE pl_upward.bsp
+    ```
+    
+    Creates brushes from original faces only.
+  </Tab>
+  
+  <Tab title="Split Faces">
+    Use SPLITFACE mode:
+    
+    ```bash
+    bspsrc --brushmode SPLITFACE ctf_turbine.bsp
+    ```
+    
+    Creates brushes from split faces for exact engine geometry.
+  </Tab>
+</Tabs>
+
+### Force Game Detection
+
+Force Team Fortress 2 (app ID 440):
+
+```bash
+bspsrc --appid 440 cp_custom.bsp
+```
+
+List all available app IDs:
+
+```bash
+bspsrc --appids
+```
+
+Output:
+```
+      ID  Name
+     220  Half-Life 2
+     240  Counter-Strike: Source
+     440  Team Fortress 2
+     ...
+```
+
+### Texture Replacement
+
+Replace all textures with a debug texture:
+
+```bash
+bspsrc --facetex "dev/dev_measuregeneric01" arena_lumberyard.bsp
+```
+
+Set back-face texture in face-based mode:
+
+```bash
+bspsrc --brushmode ORIGFACE --bfacetex "tools/toolsnodraw" cp_steel.bsp
+```
+
+### Extract Embedded Files
+
+Unpack embedded files with smart unpacking:
+
+```bash
+bspsrc --unpack_embedded pl_frontier.bsp
+```
+
+Extract all embedded files (including engine-generated):
+
+```bash
+bspsrc --unpack_embedded --no_smart_unpack koth_sawmill.bsp
+```
+
+### Batch Processing
+
+Create a file `maps.txt` with BSP paths:
+
+```
+/path/to/maps/cp_dustbowl.bsp
+/path/to/maps/pl_badwater.bsp
+/path/to/maps/koth_harvest.bsp
+```
+
+Decompile all maps in the list:
+
+```bash
+bspsrc --list maps.txt
+```
+
+### Advanced Combinations
+
+Decompile with multiple options:
+
+```bash
+bspsrc \
+  --recursive \
+  --output /path/to/output/ \
+  --no_sprp \
+  --no_overlays \
+  --brushmode BRUSHPLANES \
+  --unpack_embedded \
+  /path/to/maps/
+```
+
+This command:
+- Recursively processes all BSP files in `/path/to/maps/`
+- Outputs VMF files to `/path/to/output/`
+- Skips static props and overlays
+- Uses BRUSHPLANES mode
+- Extracts embedded files
+
+## Exit Codes
+
+BSPSource returns the following exit codes:
+
+- `0` - Success (all files decompiled successfully)
+- Non-zero - Error occurred during decompilation
+
+## Notes
+
+<Note>
+  When decompiling protected maps, BSPSource may detect protection mechanisms and warn you. Use `--no_prot` to skip these checks, but be aware the output may be incomplete or incorrect.
+</Note>
+
+<Warning>
+  Not all maps can be perfectly decompiled. Complex geometry, custom entities, or non-standard BSP modifications may result in incomplete or inaccurate VMF files.
+</Warning>
+
+<Tip>
+  For best results, start with default settings and only add flags when you need specific behavior. The BRUSHPLANES mode works well for most maps.
+</Tip>

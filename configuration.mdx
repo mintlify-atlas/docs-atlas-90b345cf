@@ -1,0 +1,582 @@
+---
+title: Configuration
+description: Complete reference for BSPSource configuration options
+---
+
+## Overview
+
+BSPSource's behavior is controlled by the `BspSourceConfig` class, which contains all configuration options for the decompilation process. These options can be set via:
+
+- **CLI flags** - Command-line arguments (see [CLI Reference](/cli-reference))
+- **GUI controls** - Graphical interface options (see [GUI Usage](/gui-usage))
+- **Programmatic API** - Direct configuration when using BSPSource as a library
+
+## Configuration Object
+
+When using BSPSource programmatically, create and configure a `BspSourceConfig` instance:
+
+```java
+import info.ata4.bspsrc.decompiler.BspSourceConfig;
+import info.ata4.bspsrc.decompiler.modules.geom.BrushMode;
+import info.ata4.bspsrc.decompiler.util.SourceFormat;
+
+BspSourceConfig config = new BspSourceConfig();
+
+// Configure options
+config.writeStaticProps = false;
+config.brushMode = BrushMode.ORIGFACE;
+config.defaultAppId = 440; // Team Fortress 2
+```
+
+## Configuration Options
+
+### General Settings
+
+<ParamField path="debug" type="boolean" default="false">
+  Enable debug mode.
+  
+  Increases log verbosity and adds additional debug information to the VMF file. Useful for troubleshooting decompilation issues.
+  
+  **CLI:** `--debug` or `-d`
+  
+  **Impact:** Larger VMF files, more console output
+</ParamField>
+
+<ParamField path="defaultAppId" type="int" default="0 (SourceAppId.UNKNOWN)">
+  Override automatic game detection with a specific Steam Application ID.
+  
+  BSPSource normally auto-detects the game from BSP metadata. Set this to force a specific game when detection fails or is incorrect.
+  
+  **CLI:** `--appid <id>`
+  
+  **Common Values:**
+  - `0` - Auto-detect (default)
+  - `220` - Half-Life 2
+  - `440` - Team Fortress 2
+  - `550` - Left 4 Dead 2
+  - `620` - Portal 2
+  - `730` - Counter-Strike: Global Offensive
+  
+  See [Supported Games](/supported-games) for a complete list.
+</ParamField>
+
+<ParamField path="sourceFormat" type="SourceFormat" default="SourceFormat.AUTO">
+  VMF format version to use for output.
+  
+  **Values:**
+  - `AUTO` - Automatically determine based on game (default)
+  - `OLD` - Source 2004-2009 format
+  - `NEW` - Source 2010+ format
+  
+  **CLI:** `--format <format>`
+  
+  **When to change:** Rarely needed. Use `OLD` if you're working with older Hammer versions.
+</ParamField>
+
+### Entity Options
+
+Control which entity types are written to the VMF file.
+
+<ParamField path="writePointEntities" type="boolean" default="true">
+  Write point entities to the VMF.
+  
+  Point entities are entities without brushes, such as:
+  - `light` - Light sources
+  - `info_player_start` - Player spawns
+  - `env_sprite` - Sprites
+  - `ambient_generic` - Sounds
+  
+  **CLI:** `--no_point_ents` (inverted - flag disables)
+</ParamField>
+
+<ParamField path="writeBrushEntities" type="boolean" default="true">
+  Write brush entities to the VMF.
+  
+  Brush entities are entities with associated geometry, such as:
+  - `func_door` - Doors
+  - `trigger_multiple` - Triggers
+  - `func_breakable` - Breakable objects
+  
+  **CLI:** `--no_brush_ents` (inverted)
+</ParamField>
+
+<ParamField path="writeStaticProps" type="boolean" default="true">
+  Write `prop_static` entities to the VMF.
+  
+  Static props are non-moving model entities like buildings, trees, rocks, and decorative elements.
+  
+  **CLI:** `--no_sprp` (inverted)
+  
+  **Impact:** Disabling can significantly reduce VMF size and complexity.
+</ParamField>
+
+<ParamField path="writeOverlays" type="boolean" default="true">
+  Write `info_overlay` entities to the VMF.
+  
+  Overlays are decals applied to surfaces, such as graffiti, signs, blood stains, and bullet holes.
+  
+  **CLI:** `--no_overlays` (inverted)
+</ParamField>
+
+<ParamField path="writeCubemaps" type="boolean" default="true">
+  Write `env_cubemap` entities to the VMF.
+  
+  Cubemaps provide reflections for reflective surfaces like water and metal.
+  
+  **CLI:** `--no_cubemaps` (inverted)
+</ParamField>
+
+<ParamField path="writeDetails" type="boolean" default="true">
+  Write `func_detail` entities to the VMF.
+  
+  Detail brushes don't affect visibility calculations and are used for small decorative geometry.
+  
+  **CLI:** `--no_details` (inverted)
+</ParamField>
+
+<ParamField path="writeAreaportals" type="boolean" default="true">
+  Write `func_areaportal` and `func_areaportal_window` entities to the VMF.
+  
+  Areaportals control visibility between different areas of the map for performance optimization.
+  
+  **CLI:** `--no_areaportals` (inverted)
+</ParamField>
+
+<ParamField path="writeOccluders" type="boolean" default="true">
+  Write `func_occluder` entities to the VMF.
+  
+  Occluders block visibility to improve rendering performance.
+  
+  **CLI:** `--no_occluders` (inverted)
+</ParamField>
+
+<ParamField path="writeLadders" type="boolean" default="true">
+  Write `func_ladder` entities to the VMF.
+  
+  Ladder entities define climbable surfaces.
+  
+  **CLI:** `--no_ladders` (inverted)
+</ParamField>
+
+<ParamField path="writeVisClusters" type="boolean" default="true">
+  Write `func_viscluster` entities to the VMF.
+  
+  Visibility clusters are used for optimization in large, complex maps.
+  
+  **CLI:** `--no_visclusters` (inverted)
+</ParamField>
+
+<ParamField path="fixEntityRot" type="boolean" default="true">
+  Fix instance entity brush rotations for Hammer Editor.
+  
+  BSPSource corrects rotation issues that occur with instance entities during compilation. Disable this to preserve original rotations.
+  
+  **CLI:** `--no_rotfix` (inverted)
+</ParamField>
+
+<ParamField path="apForceManualMapping" type="boolean" default="false">
+  Force manual entity mapping for areaportal entities.
+  
+  By default, BSPSource automatically maps areaportal entities to their associated brush entities. Enable this to force manual mapping.
+  
+  **CLI:** `--force_manual_areaportal`
+</ParamField>
+
+<ParamField path="detailMerge" type="boolean" default="false">
+  Merge `func_detail` brushes that touch into one entity.
+  
+  Can reduce entity count in the decompiled VMF, but may make editing more difficult.
+  
+  **CLI:** `--merge_details`
+</ParamField>
+
+<ParamField path="detailMergeThresh" type="float" default="1.0">
+  Distance threshold for merging detail brushes.
+  
+  Only applies when `detailMerge` is enabled. Brushes within this distance are considered touching.
+  
+  **CLI:** Not exposed (advanced setting)
+</ParamField>
+
+<ParamField path="maxCubemapSides" type="int" default="8">
+  Maximum number of brush sides for cubemap brushes.
+  
+  **CLI:** Not exposed (advanced setting)
+  
+  **Impact:** Higher values create more accurate cubemap placement but increase complexity.
+</ParamField>
+
+<ParamField path="maxOverlaySides" type="int" default="64">
+  Maximum number of brush sides for overlay entities.
+  
+  **CLI:** Not exposed (advanced setting)
+  
+  **Impact:** Higher values support more complex overlays.
+</ParamField>
+
+### Brush Options
+
+Control how world brushes are decompiled.
+
+<ParamField path="writeWorldBrushes" type="boolean" default="true">
+  Write world brush geometry to the VMF.
+  
+  World brushes are the main solid geometry of the map. Disabling this creates an entity-only VMF.
+  
+  **CLI:** `--no_brushes` (inverted)
+</ParamField>
+
+<ParamField path="writeDisp" type="boolean" default="true">
+  Write displacement surfaces to the VMF.
+  
+  Displacements are deformable surfaces used for terrain, hills, and organic shapes.
+  
+  **CLI:** `--no_disps` (inverted)
+</ParamField>
+
+<ParamField path="brushMode" type="BrushMode" default="BrushMode.BRUSHPLANES">
+  Brush decompiling mode.
+  
+  Controls how brushes are reconstructed from the BSP file.
+  
+  **Values:**
+  - `BRUSHPLANES` - Reconstruct brushes using plane information (default, most accurate)
+  - `ORIGFACE` - Create brushes from original faces before VBSP splitting
+  - `ORIGFACE_PLUS` - Create brushes from both original and split faces
+  - `SPLITFACE` - Create brushes from split faces only (most complex)
+  
+  **CLI:** `--brushmode <mode>`
+  
+  **Recommendations:**
+  - Use `BRUSHPLANES` for best results (default)
+  - Use `ORIGFACE` if `BRUSHPLANES` fails
+  - Use `SPLITFACE` for exact engine geometry (complex output)
+</ParamField>
+
+<ParamField path="backfaceDepth" type="float" default="1.0">
+  Thickness of brushes created from flat faces, in units.
+  
+  In face-based modes (`ORIGFACE`, `ORIGFACE_PLUS`, `SPLITFACE`), some faces are perfectly flat. This setting controls the thickness of brushes created from these faces.
+  
+  **CLI:** `--thickness <value>`
+  
+  **Range:** 0.1 to 100.0 (practical range)
+  
+  **Recommendations:**
+  - Keep at 1.0 for most cases
+  - Increase if brushes are too thin and cause issues
+  - Decrease for more precise geometry (may cause problems)
+</ParamField>
+
+### Texture Options
+
+Control texture handling during decompilation.
+
+<ParamField path="faceTexture" type="String" default='""'>
+  Replace all face textures with this texture.
+  
+  Useful for debugging geometry or creating template maps. Leave empty to preserve original textures.
+  
+  **CLI:** `--facetex <texture>`
+  
+  **Examples:**
+  - `"dev/dev_measuregeneric01"` - Generic measurement texture
+  - `"tools/toolsnodraw"` - Invisible texture
+  - `""` - Preserve original (default)
+</ParamField>
+
+<ParamField path="backfaceTexture" type="String" default='""'>
+  Replace all back-face textures with this texture.
+  
+  Only used in face-based decompiling modes. Back faces are the internal faces of brushes created from flat faces.
+  
+  **CLI:** `--bfacetex <texture>`
+  
+  **Common Value:** `"tools/toolsnodraw"` - Hide internal faces
+</ParamField>
+
+<ParamField path="fixCubemapTextures" type="boolean" default="true">
+  Fix environment-mapped material references.
+  
+  BSPSource corrects cubemap texture references to work properly in Hammer Editor.
+  
+  **CLI:** `--no_cubemaptexfix` (inverted)
+  
+  **Recommendation:** Keep enabled for Hammer compatibility.
+</ParamField>
+
+<ParamField path="fixToolTextures" type="boolean" default="true">
+  Fix tool texture names.
+  
+  BSPSource corrects tool texture names like `toolsnodraw` or `toolsblocklight` to their proper forms.
+  
+  **CLI:** `--no_ttfix` (inverted)
+  
+  **Recommendation:** Keep enabled for Hammer compatibility.
+</ParamField>
+
+### Miscellaneous Options
+
+<ParamField path="nullOutput" type="boolean" default="false">
+  Don't write VMF files, only read BSP.
+  
+  Useful for testing BSP reading or using BSPSource as a BSP parser without generating output.
+  
+  **CLI:** `--no_vmf`
+</ParamField>
+
+<ParamField path="loadLumpFiles" type="boolean" default="true">
+  Load lump files (`.lmp`) associated with the BSP file.
+  
+  Lump files contain additional data that can be stored separately from the main BSP. Disabling this may result in incomplete decompilation.
+  
+  **CLI:** `--no_lumpfiles` (inverted)
+  
+  **Recommendation:** Keep enabled unless you know lump files are not needed.
+</ParamField>
+
+<ParamField path="skipProt" type="boolean" default="false">
+  Skip decompilation protection checking.
+  
+  Some maps include mechanisms to prevent or break decompilation. BSPSource attempts to detect these. Enabling this skips detection, which can increase speed when batch-processing known-unprotected maps.
+  
+  **CLI:** `--no_prot`
+  
+  **Warning:** May produce incorrect results on protected maps.
+</ParamField>
+
+<ParamField path="writeVisgroups" type="boolean" default="true">
+  Group entities from instances into visgroups.
+  
+  BSPSource organizes instance entities into Hammer visgroups for easier editing.
+  
+  **CLI:** `--no_visgroups` (inverted)
+</ParamField>
+
+<ParamField path="writeCameras" type="boolean" default="true">
+  Create Hammer cameras above each player spawn.
+  
+  BSPSource creates camera entities at player spawn points for easy navigation in Hammer Editor.
+  
+  **CLI:** `--no_cams` (inverted)
+  
+  **Impact:** Adds convenience for map editing but increases entity count slightly.
+</ParamField>
+
+<ParamField path="unpackEmbedded" type="boolean" default="false">
+  Unpack embedded files from the BSP.
+  
+  Many BSP files contain embedded resources like textures, models, sounds, and particles. Enabling this extracts them to disk.
+  
+  **CLI:** `--unpack_embedded`
+  
+  **Output Location:** Files are extracted to a folder next to the VMF file.
+</ParamField>
+
+<ParamField path="smartUnpack" type="boolean" default="true">
+  Use 'smart' extraction of embedded files.
+  
+  Smart unpacking automatically skips files generated by VBSP that are only relevant to running the map in the engine (like compiled lighting data).
+  
+  **CLI:** `--no_smart_unpack` (inverted)
+  
+  **Only applies when:** `unpackEmbedded` is `true`
+  
+  **Recommendation:** Keep enabled to avoid extracting unnecessary files.
+</ParamField>
+
+### VMF Precision Settings
+
+These advanced settings control numerical precision in VMF output.
+
+<ParamField path="vmfDoubleScale" type="int" default="8">
+  Decimal places for general floating-point values in VMF.
+  
+  **CLI:** Not exposed (advanced setting)
+  
+  **Impact:** Higher values increase precision but create larger files.
+</ParamField>
+
+<ParamField path="vmfDoubleScaleTextureAxes" type="int" default="4">
+  Decimal places for texture axis vectors.
+  
+  **CLI:** Not exposed (advanced setting)
+</ParamField>
+
+<ParamField path="vmfDoubleScaleTextureScale" type="int" default="4">
+  Decimal places for texture scale values.
+  
+  **CLI:** Not exposed (advanced setting)
+</ParamField>
+
+## Configuration Presets
+
+### Default Configuration
+
+Out-of-the-box settings for complete decompilation:
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+// All entity types enabled
+// BRUSHPLANES mode
+// Auto-detect game
+// Write all optional features
+```
+
+### Geometry Only
+
+Extract only world geometry, no entities:
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+config.writePointEntities = false;
+config.writeBrushEntities = false;
+config.writeStaticProps = false;
+config.writeOverlays = false;
+config.writeCubemaps = false;
+// World brushes and displacements still enabled
+```
+
+**CLI Equivalent:**
+```bash
+bspsrc --no_point_ents --no_brush_ents --no_sprp --no_overlays --no_cubemaps map.bsp
+```
+
+### Fast Processing
+
+Optimized for speed when processing many maps:
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+config.skipProt = true;
+config.writeCameras = false;
+config.writeVisgroups = false;
+```
+
+**CLI Equivalent:**
+```bash
+bspsrc --no_prot --no_cams --no_visgroups maps/
+```
+
+### Debug Mode
+
+Maximum information for troubleshooting:
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+config.debug = true;
+config.loadLumpFiles = true;
+// All other defaults
+```
+
+**CLI Equivalent:**
+```bash
+bspsrc --debug map.bsp
+```
+
+### Extract Everything
+
+Decompile map and extract all embedded resources:
+
+```java
+BspSourceConfig config = new BspSourceConfig();
+config.unpackEmbedded = true;
+config.smartUnpack = true;
+// All other defaults
+```
+
+**CLI Equivalent:**
+```bash
+bspsrc --unpack_embedded map.bsp
+```
+
+## Programmatic Usage
+
+### Basic Example
+
+```java
+import info.ata4.bspsrc.decompiler.BspSource;
+import info.ata4.bspsrc.decompiler.BspSourceConfig;
+import info.ata4.bspsrc.decompiler.BspFileEntry;
+
+import java.nio.file.Path;
+import java.util.List;
+
+public class DecompileExample {
+    public static void main(String[] args) {
+        // Create configuration
+        BspSourceConfig config = new BspSourceConfig();
+        config.writeStaticProps = false;
+        config.debug = true;
+        
+        // Create file entry
+        Path bspPath = Path.of("maps/cp_dustbowl.bsp");
+        Path vmfPath = Path.of("output/cp_dustbowl.vmf");
+        BspFileEntry entry = new BspFileEntry(bspPath, vmfPath);
+        
+        // Decompile
+        BspSource bspsrc = new BspSource(config, List.of(entry));
+        bspsrc.run(signal -> {
+            if (signal instanceof BspSource.Signal.TaskFinished) {
+                System.out.println("Decompilation successful!");
+            } else if (signal instanceof BspSource.Signal.TaskFailed task) {
+                System.err.println("Decompilation failed: " + task.exception());
+            }
+        });
+    }
+}
+```
+
+### Advanced Example with Multiple Files
+
+```java
+import info.ata4.bspsrc.decompiler.BspSource;
+import info.ata4.bspsrc.decompiler.BspSourceConfig;
+import info.ata4.bspsrc.decompiler.BspFileEntry;
+import info.ata4.bspsrc.decompiler.modules.geom.BrushMode;
+import info.ata4.bspsrc.lib.app.SourceAppId;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BatchDecompile {
+    public static void main(String[] args) {
+        // Configure for Team Fortress 2
+        BspSourceConfig config = new BspSourceConfig();
+        config.defaultAppId = SourceAppId.TEAM_FORTRESS_2;
+        config.brushMode = BrushMode.BRUSHPLANES;
+        config.writeStaticProps = true;
+        config.unpackEmbedded = true;
+        config.smartUnpack = true;
+        
+        // Create file entries
+        List<BspFileEntry> entries = new ArrayList<>();
+        entries.add(new BspFileEntry(
+            Path.of("maps/cp_dustbowl.bsp"),
+            Path.of("output/cp_dustbowl.vmf")
+        ));
+        entries.add(new BspFileEntry(
+            Path.of("maps/pl_badwater.bsp"),
+            Path.of("output/pl_badwater.vmf")
+        ));
+        
+        // Decompile all
+        BspSource bspsrc = new BspSource(config, entries);
+        bspsrc.run(signal -> {
+            if (signal instanceof BspSource.Signal.TaskFinished task) {
+                System.out.println("Completed: " + entries.get(task.index()).getBspFile());
+            } else if (signal instanceof BspSource.Signal.TaskFailed task) {
+                System.err.println("Failed: " + entries.get(task.index()).getBspFile());
+                System.err.println("Error: " + task.exception().getMessage());
+            }
+        });
+    }
+}
+```
+
+## See Also
+
+- [CLI Reference](/cli-reference) - Command-line flag documentation
+- [GUI Usage](/gui-usage) - Graphical interface guide
+- [Supported Games](/supported-games) - List of games and their app IDs

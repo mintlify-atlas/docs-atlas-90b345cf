@@ -1,0 +1,197 @@
+---
+title: "Installation"
+description: "Install BSPSource on Windows, Linux, or any Java-compatible platform"
+---
+
+## System Requirements
+
+BSPSource requires Java 24 or later to run. Choose your installation method below based on your platform and preferences.
+
+<Note>
+  **Java Version:** BSPSource requires Java 24+ to be installed and properly configured when using the JAR-only distribution.
+</Note>
+
+## Installation Methods
+
+<Tabs>
+  <Tab title="Windows">
+    <Steps>
+      <Step title="Download">
+        Go to the [releases page](https://github.com/ata4/bspsrc/releases) and download `bspsrc-windows.zip`
+      </Step>
+      
+      <Step title="Extract">
+        Extract the contents of the zip file to a new folder (e.g., `C:\Program Files\BSPSource`)
+      </Step>
+      
+      <Step title="Launch">
+        To launch BSPSource, run the corresponding batch file:
+        - `bspsrc.bat` - GUI and decompiler
+        - `bspinfo.bat` - BSP file information tool
+      </Step>
+    </Steps>
+    
+    <Tip>
+      Add the BSPSource folder to your PATH environment variable to run `bspsrc` and `bspinfo` from anywhere.
+    </Tip>
+  </Tab>
+  
+  <Tab title="Linux">
+    <Steps>
+      <Step title="Download">
+        Go to the [releases page](https://github.com/ata4/bspsrc/releases) and download `bspsrc-linux.zip`
+      </Step>
+      
+      <Step title="Extract">
+        Extract the contents to a directory:
+        ```bash
+        unzip bspsrc-linux.zip -d ~/bspsrc
+        cd ~/bspsrc
+        ```
+      </Step>
+      
+      <Step title="Make executable">
+        Set execute permissions on the shell scripts:
+        ```bash
+        chmod +x bspsrc.sh bspinfo.sh
+        ```
+      </Step>
+      
+      <Step title="Launch">
+        Run the shell scripts:
+        ```bash
+        ./bspsrc.sh    # GUI and decompiler
+        ./bspinfo.sh   # BSP file information
+        ```
+      </Step>
+    </Steps>
+    
+    <Tip>
+      Add the BSPSource directory to your PATH or create symbolic links in `/usr/local/bin` for easier access.
+    </Tip>
+  </Tab>
+  
+  <Tab title="JAR Only (Any Platform)">
+    <Steps>
+      <Step title="Ensure Java is installed">
+        Verify Java 24+ is installed:
+        ```bash
+        java -version
+        ```
+        If not installed, download from [Oracle](https://www.oracle.com/java/technologies/downloads/) or [OpenJDK](https://openjdk.org/).
+      </Step>
+      
+      <Step title="Download">
+        Go to the [releases page](https://github.com/ata4/bspsrc/releases) and download `bspsrc-jar-only.zip`
+      </Step>
+      
+      <Step title="Extract">
+        Extract the zip file to a directory of your choice
+      </Step>
+      
+      <Step title="Run">
+        Execute the JAR files directly:
+        ```bash
+        java -jar bspsrc.jar [options] <bsp-files>
+        java -jar bspinfo.jar <bsp-file>
+        ```
+      </Step>
+    </Steps>
+    
+    <Warning>
+      This method requires Java to be properly configured in your system PATH.
+    </Warning>
+  </Tab>
+</Tabs>
+
+## Verify Installation
+
+After installation, verify BSPSource is working correctly:
+
+<CodeGroup>
+```bash Windows
+bspsrc.bat --version
+```
+
+```bash Linux
+./bspsrc.sh --version
+```
+
+```bash JAR
+java -jar bspsrc.jar --version
+```
+</CodeGroup>
+
+You should see output similar to:
+
+```
+BSPSource 1.4.8-DEV
+
+Based on VMEX v0.98g by Rof <rof@mellish.org.uk>
+Extended and modified by Nico Bergemann <barracuda415@yahoo.de>
+```
+
+## Directory Structure
+
+After extraction, your BSPSource directory will contain:
+
+```
+bspsrc/
+├── bspsrc.bat / bspsrc.sh      # Main decompiler launcher
+├── bspinfo.bat / bspinfo.sh    # BSP info tool launcher
+├── bspsrc.jar                  # Main application
+├── bspinfo.jar                 # Info tool
+└── lib/                        # Dependencies (platform builds)
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="'Java not found' error">
+    This means Java is not installed or not in your system PATH.
+    
+    **Solution:**
+    1. Install Java 24 or later from [Oracle](https://www.oracle.com/java/technologies/downloads/)
+    2. Add Java to your PATH environment variable
+    3. Restart your terminal/command prompt
+  </Accordion>
+  
+  <Accordion title="Permission denied (Linux/Mac)">
+    The shell scripts need execute permissions.
+    
+    **Solution:**
+    ```bash
+    chmod +x bspsrc.sh bspinfo.sh
+    ```
+  </Accordion>
+  
+  <Accordion title="GUI doesn't launch">
+    The GUI requires a graphical environment.
+    
+    **Solution:**
+    - Use the CLI mode instead (see [CLI Reference](/cli-reference))
+    - Or ensure you're running in a graphical environment with X11/Wayland (Linux) or Windows desktop
+  </Accordion>
+  
+  <Accordion title="Unsupported class file version">
+    Your Java version is too old.
+    
+    **Solution:**
+    Install Java 24 or later. Check your version with:
+    ```bash
+    java -version
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Learn how to decompile your first BSP file
+  </Card>
+  
+  <Card title="CLI Reference" icon="terminal" href="/cli-reference">
+    Explore all command-line options and flags
+  </Card>
+</CardGroup>
