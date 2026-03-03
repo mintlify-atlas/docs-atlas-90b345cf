@@ -1,0 +1,106 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "BSPSource",
+  "projectDescription": "A Source engine map decompiler that converts .bsp files back to editable .vmf format",
+  "theme": "aspen",
+  "primaryColor": "#FF6B35",
+  "lightColor": "#FFB85C",
+  "darkColor": "#C44D2C",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Usage",
+            "pages": [
+              "cli-reference",
+              "gui-usage",
+              "configuration",
+              "supported-games"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "decompilation-modes",
+              "entity-handling",
+              "texture-options",
+              "embedded-files",
+              "protection-detection"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "troubleshooting",
+              "faq",
+              "limitations"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Core API",
+            "pages": [
+              "api/bspsource",
+              "api/bspfile",
+              "api/bspfilereader",
+              "api/bspsourceconfig"
+            ]
+          },
+          {
+            "group": "Decompiler Modules",
+            "pages": [
+              "api/modules/brush-source",
+              "api/modules/face-source",
+              "api/modules/entity-source"
+            ]
+          },
+          {
+            "group": "Library",
+            "pages": [
+              "api/library/entities",
+              "api/library/lumps",
+              "api/library/structs"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Decompiles Source engine BSP files to VMF format",
+    "Supports multiple decompilation modes (brushes, faces, planes)",
+    "Extracts embedded files from BSP packages",
+    "Handles entities, overlays, static props, and cubemaps",
+    "Detects and bypasses map protection",
+    "Support for compressed and big-endian maps (Xbox 360, PS3)",
+    "Both CLI and GUI interfaces",
+    "Integrated BSP file inspector (bspinfo)"
+  ],
+  "publicApiSurface": [
+    "bspsrc - Main CLI decompiler command",
+    "bspinfo - BSP file inspection tool",
+    "BspSource - Main decompiler class",
+    "BspFile - BSP file reader and parser",
+    "BspFileReader - High-level BSP data access",
+    "BspSourceConfig - Decompiler configuration",
+    "BspDecompiler - Decompilation orchestrator",
+    "BrushSource - Brush geometry decompiler",
+    "FaceSource - Face geometry decompiler",
+    "EntitySource - Entity decompiler",
+    "VmfWriter - VMF file writer"
+  ]
+}
