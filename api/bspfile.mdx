@@ -9,7 +9,7 @@ The `BspFile` class provides low-level access to BSP files, handling file I/O, h
 
 **Package:** `info.ata4.bspsrc.lib`
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:46)
+**Source:** `BspFile.java:46`
 
 ## Constructor
 
@@ -21,7 +21,7 @@ public BspFile()
 
 Creates a new empty BspFile instance.
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:84)
+**Source:** `BspFile.java:84`
 
 ## Public Methods
 
@@ -45,7 +45,7 @@ Opens the BSP file and loads its headers and lumps.
 - `BspException` - if the file format is invalid or unsupported
 - `IOException` - if the file cannot be opened or read
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:97)
+**Source:** `BspFile.java:97`
 
 ```java
 public void load(Path file) throws BspException, IOException
@@ -57,7 +57,7 @@ Opens the BSP file with memory-mapping enabled by default.
   BSP file path to open.
 </ParamField>
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:164)
+**Source:** `BspFile.java:164`
 
 ### save
 
@@ -74,7 +74,7 @@ Saves the BSP file with updated headers and lumps.
 **Throws:**
 - `IOException` - if the file cannot be written
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:168)
+**Source:** `BspFile.java:168`
 
 ### loadLumpFiles
 
@@ -84,7 +84,7 @@ public void loadLumpFiles()
 
 Loads external lump files (e.g., `mapname_l_0.lmp`) and overrides internal lumps with their content.
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:392)
+**Source:** `BspFile.java:392`
 
 ### getLumps
 
@@ -96,7 +96,7 @@ Returns an unmodifiable list of all currently loaded lumps.
 
 **Returns:** Unmodifiable list of lumps
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:728)
+**Source:** `BspFile.java:728`
 
 ### getLump
 
@@ -112,7 +112,7 @@ Returns the lump for the given lump type.
 
 **Returns:** The lump for the specified type
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:736)
+**Source:** `BspFile.java:736`
 
 ### getGameLumps
 
@@ -124,7 +124,7 @@ Returns an unmodifiable list of all game lumps.
 
 **Returns:** Unmodifiable list of game lumps
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:745)
+**Source:** `BspFile.java:745`
 
 ### getGameLump
 
@@ -140,7 +140,7 @@ Returns the game lump matching the specified fourCC string ID.
 
 **Returns:** Game lump if found, otherwise null
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:755)
+**Source:** `BspFile.java:755`
 
 ### compress
 
@@ -150,7 +150,7 @@ public void compress()
 
 Compresses all lumps using LZMA compression, except for the pakfile lump.
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:768)
+**Source:** `BspFile.java:768`
 
 ### uncompress
 
@@ -160,7 +160,7 @@ public void uncompress()
 
 Uncompresses all compressed lumps.
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:808)
+**Source:** `BspFile.java:808`
 
 ### hasCompressedLumps
 
@@ -172,7 +172,7 @@ Checks if the map contains any compressed lumps.
 
 **Returns:** True if there's at least one compressed lump
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:826)
+**Source:** `BspFile.java:826`
 
 ### getPakFile
 
@@ -184,7 +184,7 @@ Returns the PakFile object for accessing the embedded pakfile lump (embedded res
 
 **Returns:** PakFile instance for this BSP
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:837)
+**Source:** `BspFile.java:837`
 
 ### canReadLump
 
@@ -200,7 +200,7 @@ Checks if a lump type is compatible with this BSP version.
 
 **Returns:** True if the lump type is available for this BSP version
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:847)
+**Source:** `BspFile.java:847`
 
 ### getNextLumpFile
 
@@ -212,7 +212,7 @@ Generates the file path for the next available lump file based on the naming pat
 
 **Returns:** Path for new lump file, or null if maximum number reached
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:857)
+**Source:** `BspFile.java:857`
 
 ### getName
 
@@ -224,7 +224,7 @@ Returns the name of this file (filename without `.bsp` extension).
 
 **Returns:** BSP name
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:874)
+**Source:** `BspFile.java:874`
 
 ### setName
 
@@ -238,7 +238,7 @@ Manually sets a new name for this file. This doesn't rename the actual file but 
   New BSP name.
 </ParamField>
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:884)
+**Source:** `BspFile.java:884`
 
 ### getFile
 
@@ -250,7 +250,7 @@ Returns the file path on the file system for this BSP file.
 
 **Returns:** File path
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:893)
+**Source:** `BspFile.java:893`
 
 ### getVersion
 
@@ -262,7 +262,7 @@ Returns the BSP format version number.
 
 **Returns:** BSP version
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:902)
+**Source:** `BspFile.java:902`
 
 ### setVersion
 
@@ -276,7 +276,7 @@ Sets a new BSP version. Note: This doesn't convert lump structures for compatibi
   New BSP version number.
 </ParamField>
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:913)
+**Source:** `BspFile.java:913`
 
 ### getRevision
 
@@ -288,7 +288,7 @@ Returns the map revision number, usually matching the "mapversion" keyvalue in t
 
 **Returns:** Map revision
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:923)
+**Source:** `BspFile.java:923`
 
 ### setRevision
 
@@ -302,7 +302,7 @@ Sets a new map revision number.
   New map revision.
 </ParamField>
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:932)
+**Source:** `BspFile.java:932`
 
 ### getByteOrder
 
@@ -314,7 +314,7 @@ Returns the endianness of the BSP file, detected from the ident value in the hea
 
 **Returns:** Byte order of the BSP (BIG_ENDIAN or LITTLE_ENDIAN)
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:942)
+**Source:** `BspFile.java:942`
 
 ### getAppId
 
@@ -326,7 +326,7 @@ Returns the detected Source engine application ID for this file.
 
 **Returns:** Source engine application ID (see SourceAppId constants)
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:951)
+**Source:** `BspFile.java:951`
 
 ### setAppId
 
@@ -340,7 +340,7 @@ Manually sets the Source engine application ID for file handling.
   New Source engine application ID.
 </ParamField>
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:959)
+**Source:** `BspFile.java:959`
 
 ### getReader
 
@@ -352,7 +352,7 @@ Returns a BspFileReader instance for reading structured data from this BSP file.
 
 **Returns:** BspFileReader for this file
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:967)
+**Source:** `BspFile.java:967`
 
 ## Public Constants
 
@@ -364,7 +364,7 @@ public static final int BSP_ID
 
 Big-endian Valve BSP identifier ("VBSP").
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:52)
+**Source:** `BspFile.java:52`
 
 ### BSP_ID_TF
 
@@ -374,7 +374,7 @@ public static final int BSP_ID_TF
 
 Big-endian Titanfall BSP identifier ("rBSP").
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:55)
+**Source:** `BspFile.java:55`
 
 ### HEADER_LUMPS
 
@@ -384,7 +384,7 @@ public static final int HEADER_LUMPS = 64
 
 Number of lumps in standard BSP files.
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:61)
+**Source:** `BspFile.java:61`
 
 ### HEADER_LUMPS_TF
 
@@ -394,7 +394,7 @@ public static final int HEADER_LUMPS_TF = 128
 
 Number of lumps in Titanfall BSP files.
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:62)
+**Source:** `BspFile.java:62`
 
 ### HEADER_SIZE
 
@@ -404,7 +404,7 @@ public static final int HEADER_SIZE = 1036
 
 Size of the BSP header in bytes.
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:63)
+**Source:** `BspFile.java:63`
 
 ### MAX_LUMPFILES
 
@@ -414,7 +414,7 @@ public static final int MAX_LUMPFILES = 128
 
 Maximum number of external lump files.
 
-**Source:** [BspFile.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFile.java:64)
+**Source:** `BspFile.java:64`
 
 ## Usage Example
 

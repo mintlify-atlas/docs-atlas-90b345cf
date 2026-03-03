@@ -9,7 +9,7 @@ The `BspFileReader` class provides high-level access to BSP file data structures
 
 **Package:** `info.ata4.bspsrc.lib`
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:38)
+**Source:** `BspFileReader.java:38`
 
 ## Constructors
 
@@ -29,7 +29,7 @@ Creates a new BspFileReader with a custom BspData instance.
   The BspData instance to populate with read data.
 </ParamField>
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:46)
+**Source:** `BspFileReader.java:46`
 
 ```java
 public BspFileReader(BspFile bspFile)
@@ -41,7 +41,7 @@ Creates a new BspFileReader with a new BspData instance.
   The loaded BSP file to read from.
 </ParamField>
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:57)
+**Source:** `BspFileReader.java:57`
 
 ## Public Methods
 
@@ -53,7 +53,7 @@ public void loadAll()
 
 Loads all supported lumps from the BSP file. This includes entities, vertices, edges, faces, models, brushes, textures, displacements, static props, and more.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:68)
+**Source:** `BspFileReader.java:68`
 
 ### loadEntities
 
@@ -63,7 +63,7 @@ public void loadEntities()
 
 Loads the entity lump and detects the Source engine application ID using heuristics if unknown.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:387)
+**Source:** `BspFileReader.java:387`
 
 ### loadVertices
 
@@ -73,7 +73,7 @@ public void loadVertices()
 
 Loads the vertex lump containing all map vertices.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:139)
+**Source:** `BspFileReader.java:139`
 
 ### loadEdges
 
@@ -83,7 +83,7 @@ public void loadEdges()
 
 Loads the edge lump. Handles special formats for Vindictus and Strata Source.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:157)
+**Source:** `BspFileReader.java:157`
 
 ### loadFaces
 
@@ -93,7 +93,7 @@ public void loadFaces()
 
 Loads face data, prioritizing HDR faces if available. Handles various face formats based on BSP version and game.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:199)
+**Source:** `BspFileReader.java:199`
 
 ### loadOriginalFaces
 
@@ -103,7 +103,7 @@ public void loadOriginalFaces()
 
 Loads original face data (pre-VBSP processing faces).
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:213)
+**Source:** `BspFileReader.java:213`
 
 ### loadModels
 
@@ -113,7 +113,7 @@ public void loadModels()
 
 Loads brush models. Handles special Dark Messiah format.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:222)
+**Source:** `BspFileReader.java:222`
 
 ### loadSurfaceEdges
 
@@ -123,7 +123,7 @@ public void loadSurfaceEdges()
 
 Loads surface edge indices used to define face geometry.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:239)
+**Source:** `BspFileReader.java:239`
 
 ### loadStaticProps
 
@@ -133,7 +133,7 @@ public void loadStaticProps()
 
 Loads static prop data including model names, prop instances, and leaf associations.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:248)
+**Source:** `BspFileReader.java:248`
 
 ### loadCubemaps
 
@@ -143,7 +143,7 @@ public void loadCubemaps()
 
 Loads cubemap sample positions for environment mapping.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:268)
+**Source:** `BspFileReader.java:268`
 
 ### loadPlanes
 
@@ -153,7 +153,7 @@ public void loadPlanes()
 
 Loads plane definitions used by brushes.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:98)
+**Source:** `BspFileReader.java:98`
 
 ### loadBrushes
 
@@ -163,7 +163,7 @@ public void loadBrushes()
 
 Loads brush geometry data.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:107)
+**Source:** `BspFileReader.java:107`
 
 ### loadBrushSides
 
@@ -173,7 +173,7 @@ public void loadBrushSides()
 
 Loads brush side definitions. Handles multiple format variations.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:116)
+**Source:** `BspFileReader.java:116`
 
 ### loadDispInfos
 
@@ -183,7 +183,7 @@ public void loadDispInfos()
 
 Loads displacement surface information. Supports various game-specific formats.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:277)
+**Source:** `BspFileReader.java:277`
 
 ### loadDispVertices
 
@@ -193,7 +193,7 @@ public void loadDispVertices()
 
 Loads displacement vertices defining terrain geometry.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:314)
+**Source:** `BspFileReader.java:314`
 
 ### loadDispTriangleTags
 
@@ -203,7 +203,7 @@ public void loadDispTriangleTags()
 
 Loads displacement triangle tags for advanced surface properties.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:323)
+**Source:** `BspFileReader.java:323`
 
 ### loadDispMultiBlend
 
@@ -213,7 +213,7 @@ public void loadDispMultiBlend()
 
 Loads displacement multi-blend data for advanced texture blending.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:332)
+**Source:** `BspFileReader.java:332`
 
 ### loadTexInfo
 
@@ -223,7 +223,7 @@ public void loadTexInfo()
 
 Loads texture information including UV mapping data.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:349)
+**Source:** `BspFileReader.java:349`
 
 ### loadTexData
 
@@ -233,7 +233,7 @@ public void loadTexData()
 
 Loads texture data and associated texture name strings.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:366)
+**Source:** `BspFileReader.java:366`
 
 ### loadNodes
 
@@ -243,7 +243,7 @@ public void loadNodes()
 
 Loads BSP tree nodes for spatial partitioning.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:408)
+**Source:** `BspFileReader.java:408`
 
 ### loadLeaves
 
@@ -253,7 +253,7 @@ public void loadLeaves()
 
 Loads BSP tree leaf nodes. Handles version-specific formats.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:427)
+**Source:** `BspFileReader.java:427`
 
 ### loadLeafFaces
 
@@ -263,7 +263,7 @@ public void loadLeafFaces()
 
 Loads leaf-to-face mapping indices.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:451)
+**Source:** `BspFileReader.java:451`
 
 ### loadLeafBrushes
 
@@ -273,7 +273,7 @@ public void loadLeafBrushes()
 
 Loads leaf-to-brush mapping indices.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:467)
+**Source:** `BspFileReader.java:467`
 
 ### loadOverlays
 
@@ -283,7 +283,7 @@ public void loadOverlays()
 
 Loads overlay decals with fade distances and system levels.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:483)
+**Source:** `BspFileReader.java:483`
 
 ### loadAreaportals
 
@@ -293,7 +293,7 @@ public void loadAreaportals()
 
 Loads areaportal definitions for visibility optimization.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:521)
+**Source:** `BspFileReader.java:521`
 
 ### loadClipPortalVertices
 
@@ -303,7 +303,7 @@ public void loadClipPortalVertices()
 
 Loads vertices used by clip portals.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:148)
+**Source:** `BspFileReader.java:148`
 
 ### loadOccluders
 
@@ -313,7 +313,7 @@ public void loadOccluders()
 
 Loads occluder geometry for occlusion culling.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:540)
+**Source:** `BspFileReader.java:540`
 
 ### loadFlags
 
@@ -323,7 +323,7 @@ public void loadFlags()
 
 Loads map-level flags.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:581)
+**Source:** `BspFileReader.java:581`
 
 ### loadPrimitives
 
@@ -333,7 +333,7 @@ public void loadPrimitives()
 
 Loads primitive geometry data (used in some game variants).
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:590)
+**Source:** `BspFileReader.java:590`
 
 ### loadPrimIndices
 
@@ -343,7 +343,7 @@ public void loadPrimIndices()
 
 Loads primitive index data.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:607)
+**Source:** `BspFileReader.java:607`
 
 ### loadPrimVerts
 
@@ -353,7 +353,7 @@ public void loadPrimVerts()
 
 Loads primitive vertex data.
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:623)
+**Source:** `BspFileReader.java:623`
 
 ### getBspFile
 
@@ -365,7 +365,7 @@ Returns the associated BspFile instance.
 
 **Returns:** The BspFile being read from
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:771)
+**Source:** `BspFileReader.java:771`
 
 ### getData
 
@@ -377,7 +377,7 @@ Returns the BspData instance containing all loaded data structures.
 
 **Returns:** The BspData with loaded lumps
 
-**Source:** [BspFileReader.java](/home/daytona/workspace/source/bspsrc-lib/src/main/java/info/ata4/bspsrc/lib/BspFileReader.java:775)
+**Source:** `BspFileReader.java:775`
 
 ## Usage Example
 

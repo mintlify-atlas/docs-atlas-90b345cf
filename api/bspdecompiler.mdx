@@ -1,0 +1,184 @@
+---
+title: BspDecompiler
+description: Main decompiler orchestrator that coordinates all decompilation modules
+---
+
+The `BspDecompiler` class is the main orchestrator for the BSP decompilation process. It initializes and coordinates all sub-modules (entity, brush, texture, etc.) and controls the overall decompilation workflow.
+
+**Source:** `BspDecompiler.java:35`
+
+## Overview
+
+BspDecompiler is the central component that ties together all decompilation modules. It manages the decompilation process from start to finish, handling world geometry, entities, textures, and metadata.
+
+## Constructor
+
+<ParamField path="BspDecompiler" type="constructor">
+  Creates a new decompiler instance.
+  
+  ```java
+  BspDecompiler(
+      BspFileReader reader,
+      VmfWriter writer,
+      BspSourceConfig config
+  )
+  ```
+  
+  <Expandable title="Parameters">
+    <ParamField path="reader" type="BspFileReader" required>
+      BSP file reader with loaded BSP data
+    </ParamField>
+    
+    <ParamField path="writer" type="VmfWriter" required>
+      VMF writer for output
+    </ParamField>
+    
+    <ParamField path="config" type="BspSourceConfig" required>
+      Configuration settings for decompilation
+    </ParamField>
+  </Expandable>
+  
+  The constructor initializes all sub-modules including:
+  - TextureSource - Texture handling
+  - BspProtection - Protection detection
+  - VmfMeta - VMF metadata writing
+  - BrushSource - Brush geometry decompilation
+  - FaceSource - Face-based geometry decompilation
+  - EntitySource - Entity decompilation
+</ParamField>
+
+## Methods
+
+<ParamField path="start" type="void">
+  Start the decompilation process.
+  
+  ```java
+  void start()
+  ```
+  
+  Executes the complete decompilation workflow:
+  1. Configure texture fixing options
+  2. Check for map protection (if enabled)
+  3. Load brush-face mappings (for BRUSHPLANES mode)
+  4. Write VMF header and worldspawn
+  5. Write world brushes and displacements
+  6. Write entities
+  7. Write visgroups
+  8. Finalize VMF structure
+</ParamField>
+
+<ParamField path="setNmoData" type="void">
+  Set NMO data for No More Room in Hell maps.
+  
+  ```java
+  void setNmoData(NmoFile nmo)
+  ```
+  
+  Provides additional objective data for NMRIH game mode maps.
+</ParamField>
+
+## Decompilation Workflow
+
+The decompilation process follows this sequence:
+
+<Steps>
+  <Step title="Initialization">
+    Configure texture options and check for protection mechanisms.
+  </Step>
+  
+  <Step title="Data Loading">
+    Load required data structures based on brush mode (BRUSHPLANES requires additional mapping data).
+  </Step>
+  
+  <Step title="Metadata">
+    Write VMF header, version info, and worldspawn entity.
+  </Step>
+  
+  <Step title="World Geometry">
+    Write world brushes and displacement surfaces if enabled.
+  </Step>
+  
+  <Step title="Entities">
+    Write all entities including brush entities, point entities, static props, overlays, and cubemaps.
+  </Step>
+  
+  <Step title="Organization">
+    Write visgroups for instance organization.
+  </Step>
+  
+  <Step title="Finalization">
+    Close all VMF sections and complete the file.
+  </Step>
+</Steps>
+
+## Sub-Modules
+
+BspDecompiler coordinates these specialized modules:
+
+### TextureSource
+Handles texture name fixing and material processing.
+
+### BspProtection
+Detects and handles various map protection techniques.
+
+### VmfMeta
+Manages VMF metadata, comments, and version information.
+
+### BrushSource
+Decompiles brush geometry using brush and plane lumps.
+
+### FaceSource
+Decompiles geometry using face lumps (alternative to BrushSource).
+
+### EntitySource
+Decompiles all entity types including point and brush entities.
+
+## Usage Example
+
+```java
+import info.ata4.bspsrc.decompiler.BspDecompiler;
+import info.ata4.bspsrc.decompiler.BspSourceConfig;
+import info.ata4.bspsrc.lib.BspFile;
+import info.ata4.bspsrc.lib.BspFileReader;
+
+// Load BSP file
+BspFile bsp = new BspFile();
+bsp.load(bspPath);
+
+BspFileReader reader = new BspFileReader(bsp);
+reader.loadAll();
+
+// Create configuration
+BspSourceConfig config = new BspSourceConfig();
+config.writeWorldBrushes = true;
+config.writePointEntities = true;
+config.brushMode = BrushMode.BRUSHPLANES;
+
+// Create writer
+VmfWriter writer = new VmfWriter(outputFile);
+
+// Decompile
+BspDecompiler decompiler = new BspDecompiler(reader, writer, config);
+decompiler.start();
+
+// Clean up
+writer.close();
+```
+
+## Configuration Impact
+
+The BspSourceConfig settings control what BspDecompiler writes:
+
+- **brushMode** - Determines which module (BrushSource vs FaceSource) handles geometry
+- **writeWorldBrushes** - Enable/disable world geometry decompilation
+- **writePointEntities/writeBrushEntities** - Control entity writing
+- **fixCubemapTextures/fixToolTextures** - Configure texture fixing
+- **skipProt** - Skip protection checking for faster processing
+
+## Related
+
+- [BspSource](/api/bspsource) - High-level decompiler entry point
+- [BspSourceConfig](/api/bspsourceconfig) - Configuration options
+- [VmfWriter](/api/vmfwriter) - VMF file writer
+- [BrushSource](/api/modules/brush-source) - Brush geometry module
+- [EntitySource](/api/modules/entity-source) - Entity decompilation module

@@ -11,7 +11,7 @@ As the original author noted: *"A simple decompiler for HL2 bsp files"*
 
 **Package:** `info.ata4.bspsrc.decompiler`
 
-**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:56)
+**Source:** `BspSource.java:56`
 
 ## Constructor
 
@@ -48,7 +48,7 @@ Starts the BSPSource decompilation process. Processes all entries in parallel us
 **Throws:**
 - `InterruptedException` - if the decompilation process is interrupted
 
-**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:78)
+**Source:** `BspSource.java:78`
 
 ### decompile (static)
 
@@ -71,7 +71,7 @@ Starts the decompiling process for a single BSP file. This is the core decompila
 - `BspSourceException` - if an error occurs during decompilation
 - `BspException` - if there's an error loading or processing the BSP file
 
-**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:142)
+**Source:** `BspSource.java:142`
 
 ### getEntryUuids
 
@@ -83,7 +83,7 @@ Returns the list of UUIDs for each entry, used for tracking tasks in logging.
 
 **Returns:** List of UUIDs corresponding to each entry
 
-**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:240)
+**Source:** `BspSource.java:240`
 
 ## Public Fields
 
@@ -95,7 +95,7 @@ public static final String VERSION = "1.4.8-DEV"
 
 The current version string of BSPSource.
 
-**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:61)
+**Source:** `BspSource.java:61`
 
 ### DECOMPILE_TASK_ID_IDENTIFIER
 
@@ -105,7 +105,7 @@ public static final String DECOMPILE_TASK_ID_IDENTIFIER = "decompile_id"
 
 The thread context key identifier used for tracking decompilation tasks in logs.
 
-**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:59)
+**Source:** `BspSource.java:59`
 
 ## Nested Types
 
@@ -117,7 +117,7 @@ Signals emitted during the decompilation process:
 - `TaskFinished(int index)` - Emitted when a task completes successfully
 - `TaskFailed(int index, Throwable exception)` - Emitted when a task fails
 
-**Source:** [BspSource.java](/home/daytona/workspace/source/bspsrc-decompiler/src/main/java/info/ata4/bspsrc/decompiler/BspSource.java:244)
+**Source:** `BspSource.java:244`
 
 ## Usage Example
 

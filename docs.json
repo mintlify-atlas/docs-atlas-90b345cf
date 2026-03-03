@@ -69,7 +69,9 @@
               "api/bspsource",
               "api/bspfile",
               "api/bspfilereader",
-              "api/bspsourceconfig"
+              "api/bspsourceconfig",
+              "api/bspdecompiler",
+              "api/vmfwriter"
             ]
           },
           {

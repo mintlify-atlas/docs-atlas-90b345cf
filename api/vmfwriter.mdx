@@ -1,0 +1,131 @@
+---
+title: VmfWriter
+description: VMF file writer class for formatting and writing decompiled maps
+---
+
+The `VmfWriter` class is responsible for writing formatted VMF (Valve Map Format) files during the decompilation process. It handles proper indentation, section nesting, and value formatting.
+
+**Source:** `VmfWriter.java:34`
+
+## Overview
+
+VmfWriter provides a structured API for writing VMF files with correct formatting. It manages nested sections, handles different data types, and ensures proper precision for coordinate values.
+
+## Constructor
+
+<ParamField path="VmfWriter" type="constructor">
+  Creates a new VMF writer instance.
+  
+  ```java
+  VmfWriter(
+      PrintWriter pw,
+      int doubleScale,
+      int doubleScaleTextureAxes,
+      int doubleScaleTextureScale
+  )
+  ```
+  
+  <Expandable title="Parameters">
+    <ParamField path="pw" type="PrintWriter" required>
+      The PrintWriter to write VMF content to
+    </ParamField>
+    
+    <ParamField path="doubleScale" type="int" required>
+      Scale factor for double precision coordinates (default: 8)
+    </ParamField>
+    
+    <ParamField path="doubleScaleTextureAxes" type="int" required>
+      Scale factor for texture axis values (default: 4)
+    </ParamField>
+    
+    <ParamField path="doubleScaleTextureScale" type="int" required>
+      Scale factor for texture scale values (default: 4)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Methods
+
+### Section Management
+
+<ParamField path="start" type="void">
+  Start a new VMF section.
+  
+  ```java
+  void start(String name)
+  ```
+  
+  Opens a new named section with proper indentation and braces.
+</ParamField>
+
+<ParamField path="end" type="void">
+  End the current VMF section.
+  
+  ```java
+  void end(String name)
+  ```
+  
+  Closes the current section. The name must match the currently open section.
+</ParamField>
+
+### Value Writing
+
+<ParamField path="put" type="void">
+  Write a key-value pair.
+  
+  ```java
+  void put(String key, String value)
+  void put(String key, int value)
+  void put(String key, int... values)
+  void put(String key, long value)
+  void put(String key, float value)
+  void put(String key, double value)
+  void put(String key, Vector3f value)
+  void put(String key, Vector3d value)
+  ```
+  
+  Writes a property with proper quoting and formatting. Supports various data types including primitives, vectors, and arrays.
+</ParamField>
+
+## Usage Example
+
+```java
+import info.ata4.bspsrc.decompiler.VmfWriter;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+
+// Create writer
+PrintWriter pw = new PrintWriter(new FileWriter("output.vmf"));
+VmfWriter writer = new VmfWriter(pw, 8, 4, 4);
+
+// Write VMF structure
+writer.start("world");
+writer.put("id", 1);
+writer.put("mapversion", 1);
+writer.put("classname", "worldspawn");
+
+writer.start("solid");
+writer.put("id", 2);
+writer.end("solid");
+
+writer.end("world");
+
+// Close when done
+writer.close();
+```
+
+## Precision Scaling
+
+The scale parameters control decimal precision for different value types:
+
+- **doubleScale**: Used for world coordinates and vertex positions
+- **doubleScaleTextureAxes**: Used for texture axis vectors
+- **doubleScaleTextureScale**: Used for texture scale values
+
+Higher values provide more precision but increase file size. Default values (8, 4, 4) provide good balance.
+
+## Related
+
+- [BspDecompiler](/api/bspdecompiler) - Main decompiler that uses VmfWriter
+- [BrushSource](/api/modules/brush-source) - Writes brushes using VmfWriter
+- [EntitySource](/api/modules/entity-source) - Writes entities using VmfWriter
